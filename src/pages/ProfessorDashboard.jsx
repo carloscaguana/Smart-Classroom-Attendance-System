@@ -156,6 +156,10 @@ function getSessionDurationMinutes(student) {
     return null;
   }
 
+  if (leave < arrival) {
+    return -1;
+  }
+  
   return leave - arrival;
 }
 

@@ -12,6 +12,13 @@ const STATUS_OPTIONS = [
   "UNKNOWN",
 ];
 
+// Statuses that count as present for attendance calculation
+const PRESENT_STATUSES = ["ON_TIME", "LATE", "EXCUSED"];
+
+// Statuses that count towards attendance calculation
+// Doesn't include PENDING and UNKNOWN
+const COUNTED_STATUSES = ["ON_TIME", "LATE", "ABSENT", "SKIPPED", "EXCUSED"];
+
 // Temporary mock data
 const MOCK_STUDENTS = [
   // ON_TIME (with leave time)
@@ -25,6 +32,13 @@ const MOCK_STUDENTS = [
     lastLeave: "2025-11-25 10:10",
     status: "PENDING",
     overrideStatus: null,
+    attendanceRecords: [
+      { date: "2025-11-11", status: "ON_TIME" },
+      { date: "2025-11-13", status: "ON_TIME" },
+      { date: "2025-11-18", status: "LATE" },
+      { date: "2025-11-20", status: "ON_TIME" },
+      { date: "2025-11-25", status: "ON_TIME" },
+    ],
   },
 
   // LATE
@@ -38,6 +52,13 @@ const MOCK_STUDENTS = [
     lastLeave: "2025-11-25 10:20",
     status: "PENDING",
     overrideStatus: null,
+    attendanceRecords: [
+      { date: "2025-11-11", status: "LATE" },
+      { date: "2025-11-13", status: "LATE" },
+      { date: "2025-11-18", status: "ON_TIME" },
+      { date: "2025-11-20", status: "SKIPPED" },
+      { date: "2025-11-25", status: "LATE" },
+    ],
   },
 
   // ABSENT
@@ -51,6 +72,13 @@ const MOCK_STUDENTS = [
     lastLeave: "",
     status: "PENDING",
     overrideStatus: null,
+    attendanceRecords: [
+      { date: "2025-11-11", status: "ABSENT" },
+      { date: "2025-11-13", status: "ABSENT" },
+      { date: "2025-11-18", status: "ABSENT" },
+      { date: "2025-11-20", status: "SKIPPED" },
+      { date: "2025-11-25", status: "ABSENT" },
+    ],
   },
 
   // SKIPPED
@@ -64,6 +92,13 @@ const MOCK_STUDENTS = [
     lastLeave: "2025-11-25 09:30",
     status: "PENDING",
     overrideStatus: null,
+    attendanceRecords: [
+      { date: "2025-11-11", status: "LATE" },
+      { date: "2025-11-13", status: "LATE" },
+      { date: "2025-11-18", status: "ON_TIME" },
+      { date: "2025-11-20", status: "SKIPPED" },
+      { date: "2025-11-25", status: "EXCUSED" },
+    ],
   },
 
   // Forgot to clock out but class ended
@@ -77,6 +112,13 @@ const MOCK_STUDENTS = [
     lastLeave: "",
     status: "PENDING",
     overrideStatus: null,
+    attendanceRecords: [
+      { date: "2025-11-11", status: "EXCUSED" },
+      { date: "2025-11-13", status: "LATE" },
+      { date: "2025-11-18", status: "ON_TIME" },
+      { date: "2025-11-20", status: "SKIPPED" },
+      { date: "2025-11-25", status: "LATE" },
+    ],
   },
 
   // Error on arrival time format
@@ -90,6 +132,13 @@ const MOCK_STUDENTS = [
     lastLeave: "",
     status: "PENDING",
     overrideStatus: null,
+    attendanceRecords: [
+      { date: "2025-11-11", status: "LATE" },
+      { date: "2025-11-13", status: "EXCUSED" },
+      { date: "2025-11-18", status: "ON_TIME" },
+      { date: "2025-11-20", status: "SKIPPED" },
+      { date: "2025-11-25", status: "LATE" },
+    ],
   },
 
   // Error on leave time format
@@ -103,6 +152,13 @@ const MOCK_STUDENTS = [
     lastLeave: "10:20",
     status: "PENDING",
     overrideStatus: null,
+    attendanceRecords: [
+      { date: "2025-11-11", status: "LATE" },
+      { date: "2025-11-13", status: "ON_TIME" },
+      { date: "2025-11-18", status: "ON_TIME" },
+      { date: "2025-11-20", status: "SKIPPED" },
+      { date: "2025-11-25", status: "LATE" },
+    ],
   },
 
   // Arrives late, but has not clocked out yet
@@ -116,6 +172,13 @@ const MOCK_STUDENTS = [
     lastLeave: "",
     status: "PENDING",
     overrideStatus: null,
+    attendanceRecords: [
+      { date: "2025-11-11", status: "ABSENT" },
+      { date: "2025-11-13", status: "SKIPPED" },
+      { date: "2025-11-18", status: "EXCUSED" },
+      { date: "2025-11-20", status: "SKIPPED" },
+      { date: "2025-11-25", status: "ON_TIME" },
+    ],
   },
 ];
 
@@ -199,6 +262,73 @@ function getEffectiveStatus(student, computeFn) {
   }
 
   return computeFn(student);
+}
+
+// For a single student
+function getAttendanceSummary(student) {
+  const records = student.attendanceRecords || [];
+
+  // Filters out unknown statuses
+  const counted = records.filter((r) =>
+    COUNTED_STATUSES.includes(r.status)
+  );
+
+  const total = counted.length;
+
+  // If attendance record is empty, then can't calculate past attendance
+  if (total === 0) {
+    return { attended: 0, total: 0, percent: 0 };
+  }
+
+  // Filter only present statuses and gets its length (attended count)
+  const attended = counted.filter((r) =>
+    PRESENT_STATUSES.includes(r.status)
+  ).length;
+
+  // Calculates percentage (unrounded)
+  const percent = ((attended / total) * 100);
+
+  return { attended, total, percent };
+}
+
+// For the whole class
+function getClassAttendanceSummary(students) {
+  let totalSessions = 0;
+  let totalAttended = 0;
+
+  // For each student, counts their attended and total sessions
+  // and adds them to totalSessions and totalAttended
+  // (to calculate class average)
+  students.forEach((s) => {
+    const { attended, total } = getAttendanceSummary(s);
+    totalSessions += total;
+    totalAttended += attended;
+  });
+
+  // Calculates class average percentage (unrounded)
+  const percent =
+    totalSessions === 0
+      ? 0
+      : ((totalAttended / totalSessions) * 100);
+
+  return { totalSessions, totalAttended, percent };
+}
+
+// Color for percentage (used in details panel, class overview)
+function getAttendanceColorClass(percent) {
+  if (percent >= 90) return "text-emerald-300";
+  if (percent >= 70) return "text-amber-300";
+  if (percent >= 40) return "text-orange-300";
+  //if (percent > 0) return "text-red-300";
+  return "text-red-300";
+}
+
+// image/icon based on student percentage
+function getAttendanceEmoji(percent) {
+  if (percent >= 90) return "🟢"; // S-tier
+  if (percent >= 70) return "🟡"; // decent
+  if (percent >= 40) return "🟠";   // bad
+  return "🔴";                    // very bad
 }
 
 export default function ProfessorDashboard() {
@@ -327,6 +457,34 @@ export default function ProfessorDashboard() {
 
       {/* Main content area */}
       <main className="px-6 py-4 space-y-6">
+        <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 mb-2">
+          {(() => {
+            const { totalSessions, totalAttended, percent } = getClassAttendanceSummary(students);
+            const color = getAttendanceColorClass(percent);
+            const emoji = getAttendanceEmoji(percent);
+
+            return (
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-sm font-semibold mb-1">
+                    Class attendance overview
+                  </h2>
+                  <p className={`text-sm font-medium ${color}`}>
+                    Average attendance: {percent}%{" "}
+                    {totalSessions > 0 &&
+                      `(${totalAttended}/${totalSessions} total session-marks)`}
+                  </p>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Based on counted statuses: ON_TIME, LATE, ABSENT, SKIPPED, EXCUSED.
+                  </p>
+                </div>
+                <div className="text-3xl">
+                  {emoji}
+                </div>
+              </div>
+            );
+          })()}
+        </section>
         {/* Course configuration area */}
         <section className="grid md:grid-cols-[2fr,3fr] gap-4">
           <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
@@ -482,12 +640,49 @@ export default function ProfessorDashboard() {
                       </option>
                     ))}
                   </select>
-                  <p className="text-[10px] text-slate-400 mt-2">
+                  <p className="text-[10px] text-slate-500 mt-2">
                     Choosing a value here locks this student&apos;s status and
                     ignores automatic rules until you switch back to
                     <span className="italic"> Use automatic</span>.
                   </p>
                 </div>
+
+                <div>
+                  <span className="text-slate-400 text-xs">Attendance</span>
+                  {(() => {
+                    const { attended, total, percent } = getAttendanceSummary(selectedStudent);
+                    const color = getAttendanceColorClass(percent);
+                    const emoji = getAttendanceEmoji(percent);
+
+                    return (
+                      <div className="mt-1 flex items-center justify-between">
+                        <div>
+                          <div className={`text-sm font-semibold ${color}`}>
+                            {total > 0
+                              ? `${percent}% attendance (${attended}/${total} sessions)`
+                              : "No attendance data"}
+                          </div>
+                          {total > 0 && (
+                            <div className="text-[10px] text-slate-500">
+                              Present = ON_TIME, LATE, or EXCUSED
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-2xl ml-3">
+                          {emoji}
+                          {/* Image alternative (I might implement this later)
+                            <img
+                              src={getAttendanceImageSrc(percent)}
+                              alt="Attendance tier"
+                              className="w-10 h-10"
+                            />
+                          */}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+
                 <p className="text-xs text-slate-400 mt-4">
                   TODO: per-session history, lateness for
                   each day, etc.
@@ -510,19 +705,23 @@ export default function ProfessorDashboard() {
           {/* Default shows 1 card per row. Medium screens shows 2 cards per row, while
               large screens shows 3 cards per row. */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {students.map((s) => (
-              <StudentCard
-                key={s.id}
-                student={{ ...s, status: getEffectiveStatus(s, computeStatus) }}
-                onClick={() => {
-                  if (selectedStudent && selectedStudent.id === s.id) {
-                    setSelectedStudent(null);
-                  } else {
-                    setSelectedStudent(s);
-                  }
-                }}
-              />
-            ))}
+            {students.map((s) => {
+              const attendanceSummary = getAttendanceSummary(s);
+              return (
+                <StudentCard
+                  key={s.id}
+                  student={{ ...s, status: getEffectiveStatus(s, computeStatus) }}
+                  attendanceSummary={attendanceSummary}
+                  onClick={() => {
+                    if (selectedStudent && selectedStudent.id === s.id) {
+                      setSelectedStudent(null);
+                    } else {
+                      setSelectedStudent(s);
+                    }
+                  }}
+                />
+              );
+            })}
           </div>
         </section>
       </main>

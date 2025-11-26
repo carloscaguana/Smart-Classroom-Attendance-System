@@ -10,7 +10,7 @@ const statusColorMap = {
   UNKNOWN: "slate"
 };
 
-export default function StudentCard({ student, onClick }) {
+export default function StudentCard({ student, attendanceSummary, onClick }) {
   // uid - Unique identifier based on the students' NFC card
   // Visits - Number of times a student clocks in and out during class
   // totalSeconds - Total time (in seconds) a student has spent in class
@@ -54,7 +54,8 @@ export default function StudentCard({ student, onClick }) {
   // }
 
   const color = statusColorMap[status] || "slate";
-
+  const { attended = 0, total = 0, percent = 0 } = attendanceSummary || {};
+  
   return (
     <button
       onClick={onClick}
@@ -108,6 +109,12 @@ export default function StudentCard({ student, onClick }) {
           <span>Last leave:</span>
           <span className="text-slate-100 text-right ml-2">
             {lastLeave || "N/A"}
+          </span>
+        </div>
+        <div className="flex justify-between">
+          <span>Attendance:</span>
+          <span className="text-slate-100">
+            {total > 0 ? `${percent}% (${attended}/${total})` : "N/A"}
           </span>
         </div>
       </div>

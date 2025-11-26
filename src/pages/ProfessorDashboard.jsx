@@ -306,7 +306,7 @@ export default function ProfessorDashboard() {
                     type="number"
                     value={graceMinutes}
                     onChange={(e) =>
-                      setGraceMinutes(Number(e.target.value || 0))
+                      setGraceMinutes(Number(e.target.value))
                     }
                     className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
@@ -320,7 +320,7 @@ export default function ProfessorDashboard() {
                   <input
                       type="number"
                       value={minMinutesPresent}
-                      onChange={(e) => setMinMinutesPresent(Number(e.target.value || 0))}
+                      onChange={(e) => setMinMinutesPresent(Number(e.target.value))}
                       className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>

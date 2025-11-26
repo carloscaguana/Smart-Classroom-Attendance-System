@@ -1,5 +1,6 @@
 import { useState } from "react";
 import StudentCard from "../components/StudentCard.jsx";
+import { formatTotalDuration } from '../utils/time.jsx';
 
 // Temporary mock data
 const MOCK_STUDENTS = [
@@ -110,6 +111,52 @@ export default function ProfessorDashboard() {
 
   const [students] = useState(MOCK_STUDENTS);
   const [selectedStudent, setSelectedStudent] = useState(null);
+
+  function getDurationMinutes(student) {
+    let durationMinutes = null;
+
+    // Checks if a student has an leave time
+    if (student.lastArrival && student.lastLeave) {
+        // Format: YYYY-MM-DD HH:MM
+        const arrivalParts = student.lastArrival.split(" ");
+        const leaveParts = student.lastLeave.split(" ");
+
+        // If the format is not messed up, I split HH:MM to hours and minutes
+        if (arrivalParts.length >= 2 && leaveParts.length >= 2) {
+            const [arrivalHour, arrivalMinute] = arrivalParts[1].split(":").map(Number);
+            const [leaveHour, leaveMinute] = leaveParts[1].split(":").map(Number);
+
+            // If the format is valid, I convert the total leave time to minutes
+            // to store in durationMinutes
+            if (!Number.isNaN(arrivalHour) && !Number.isNaN(arrivalMinute) 
+                  && !Number.isNaN(leaveHour) && !Number.isNaN(leaveMinute)) {
+
+                // Conversion
+                const arrivalInMinutes = arrivalHour * 60 + arrivalMinute;
+                const leaveInMinutes = leaveHour * 60 + leaveMinute;
+
+                // As you can see, that's why I converted the total arrival and leave time
+                // to minutes, to easily get the durationMinutes
+                durationMinutes = leaveInMinutes - arrivalInMinutes;
+
+                return durationMinutes;
+            }
+        }
+    }
+
+    return durationMinutes;
+  }
+
+  function formatDuration(student) {
+    const durationMinutes = getDurationMinutes(student);
+
+    if (durationMinutes === null) return "N/A";
+
+    const hours = Math.floor(durationMinutes / 60);
+    const minutes = durationMinutes % 60;
+
+    return `${hours}h ${minutes}m`;
+  }
 
   function computeStatus(student) {
     // Professor hasn't selected course time
@@ -356,6 +403,12 @@ export default function ProfessorDashboard() {
                   </div>
                 </div>
                 <div>
+                  <span className="text-slate-400 text-xs">Total time</span>
+                  <div className="text-xs text-slate-300">
+                    {formatTotalDuration(selectedStudent.totalSeconds || 0)}
+                  </div>
+                </div>
+                <div>
                   <span className="text-slate-400 text-xs">
                     Arrival time
                   </span>
@@ -369,6 +422,12 @@ export default function ProfessorDashboard() {
                   </span>
                   <div className="text-xs">
                     {selectedStudent.lastLeave || "N/A"}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-slate-400 text-xs">Duration</span>
+                  <div className="text-xs text-slate-300">
+                    {formatDuration(selectedStudent || "N/A")}
                   </div>
                 </div>
                 <div>

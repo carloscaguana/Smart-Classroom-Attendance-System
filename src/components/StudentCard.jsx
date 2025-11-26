@@ -1,3 +1,5 @@
+import { formatTotalDuration } from '../utils/time.jsx';
+
 export default function StudentCard({ student, onClick }) {
   // uid - Unique identifier based on the students' NFC card
   // Visits - Number of times a student clocks in and out during class
@@ -33,12 +35,12 @@ export default function StudentCard({ student, onClick }) {
 
   // Turns a students totalSeconds into a HH:MM:SS format
   // Returns the total time a student spent in a class
-  function formatDuration(totalSeconds = 0) {
-    const hour = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    return `${hour}h ${minutes}m ${seconds}s`;
-  }
+  // function formatDuration(totalSeconds = 0) {
+  //   const hour = Math.floor(totalSeconds / 3600);
+  //   const minutes = Math.floor((totalSeconds % 3600) / 60);
+  //   const seconds = totalSeconds % 60;
+  //   return `${hour}h ${minutes}m ${seconds}s`;
+  // }
 
   return (
     <button
@@ -86,7 +88,7 @@ export default function StudentCard({ student, onClick }) {
         <div className="flex justify-between">
           <span>Total time:</span>
           <span className="text-slate-100">
-            {formatDuration(totalSeconds || 0)}
+            {formatTotalDuration(totalSeconds || 0)}
           </span>
         </div>
         <div className="flex justify-between">

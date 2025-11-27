@@ -1,7 +1,6 @@
 import { useState } from "react";
 import StudentCard from "../components/StudentCard.jsx";
 import { formatTotalDuration } from '../utils/time.jsx';
-import { MOCK_STUDENTS } from "../data/mockStudents.js";
 
 const STATUS_OPTIONS = [
   "ON_TIME",
@@ -152,30 +151,6 @@ function getAttendanceSummary(student, currentStatus) {
   return { attended, total, percent };
 }
 
-// For the whole class
-function getClassAttendanceSummary(students, computeStatus) {
-  let totalSessions = 0;
-  let totalAttended = 0;
-
-  // For each student, counts their attended and total sessions
-  // and adds them to totalSessions and totalAttended
-  // (to calculate class average)
-  students.forEach((s) => {
-    const effectiveStatus = getEffectiveStatus(s, computeStatus);
-    const { attended, total } = getAttendanceSummary(s, effectiveStatus);
-    totalSessions += total;
-    totalAttended += attended;
-  });
-
-  // Calculates class average percentage (unrounded)
-  const percent =
-    totalSessions === 0
-      ? 0
-      : ((totalAttended / totalSessions) * 100);
-
-  return { totalSessions, totalAttended, percent };
-}
-
 // Color for percentage (used in details panel, class overview)
 function getAttendanceColorClass(percent) {
   if (percent >= 90) return "text-emerald-300";
@@ -193,7 +168,16 @@ function getAttendanceEmoji(percent) {
   return "🔴";                    // very bad
 }
 
-export default function ProfessorDashboard() {
+export default function StudentDashboard({ student }) {
+    if (!student) {
+        return (
+        <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
+            <p className="text-sm text-slate-400">
+            No student data. Please log in again.
+            </p>
+        </div>
+        );
+    }
   const [courseName, setCourseName] = useState("CS410");
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("10:15");
@@ -201,24 +185,12 @@ export default function ProfessorDashboard() {
 
   const [minMinutesPresent, setMinMinutesPresent] = useState(30);
 
-  const [students, setStudents] = useState(MOCK_STUDENTS);
+  // const [students, setStudents] = useState(MOCK_STUDENTS);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const details = selectedStudent || student;
 
-  function setOverrideStatus(studentId, newStatus) {
-    setStudents((prev) => 
-      prev.map((s) => 
-      s.id === studentId
-          ? { ...s, overrideStatus: newStatus || null}
-          : s
-      )
-    );
-
-    setSelectedStudent((prev) =>
-      prev && prev.id === studentId
-          ? { ...prev, overrideStatus: newStatus || null}
-          : prev
-    );
-  }
+  const effectiveStatus = getEffectiveStatus(student, computeStatus);
+  const attendanceSummary = getAttendanceSummary(student, effectiveStatus)
 
   function computeStatus(student) {
     // Course start and end times in minutes
@@ -321,7 +293,8 @@ export default function ProfessorDashboard() {
       <main className="px-6 py-4 space-y-6">
         <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 mb-2">
           {(() => {
-            const { totalSessions, totalAttended, percent } = getClassAttendanceSummary(students, computeStatus);
+            const effectiveStatus = getEffectiveStatus(student, computeStatus);
+            const {attended, total, percent} = getAttendanceSummary(student, effectiveStatus);
             const color = getAttendanceColorClass(percent);
             const emoji = getAttendanceEmoji(percent);
 
@@ -329,15 +302,18 @@ export default function ProfessorDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-sm font-semibold mb-1">
-                    Class attendance overview
+                    Your attendance overview
                   </h2>
                   <p className={`text-sm font-medium ${color}`}>
                     Average attendance: {percent}%{" "}
-                    {totalSessions > 0 &&
-                      `(${totalAttended}/${totalSessions} total session-marks)`}
+                    {total > 0
+                        ? `(${attended}/${total} sessions)`
+                        : "No attendance data yet"
+                    }
                   </p>
                   <p className="text-[11px] text-slate-400 mt-1">
                     Based on counted statuses: ON_TIME, LATE, ABSENT, SKIPPED, EXCUSED.
+                    Present = ON_TIME, LATE, or EXCUSED. PENDING / UNKNOWN are not counted.
                   </p>
                 </div>
                 <div className="text-3xl">
@@ -441,25 +417,25 @@ export default function ProfessorDashboard() {
           {/* Selected student details */}
           <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
             <h2 className="text-sm font-semibold mb-3">
-              {selectedStudent ? "Additional Details" : "Additional Details"}
+              Additional Details
             </h2>
 
             {selectedStudent ? (
               <div className="text-sm text-slate-200 space-y-2">
                 <div>
                   <span className="text-slate-400 text-xs">Name</span>
-                  <div className="font-medium">{selectedStudent.name}</div>
+                  <div className="font-medium">{details.name}</div>
                 </div>
                 <div>
                   <span className="text-slate-400 text-xs">UID</span>
                   <div className="text-xs text-slate-300">
-                    {selectedStudent.uid}
+                    {details.uid}
                   </div>
                 </div>
                 <div>
                   <span className="text-slate-400 text-xs">Total time</span>
                   <div className="text-xs text-slate-300">
-                    {formatTotalDuration(selectedStudent.totalSeconds || 0)}
+                    {formatTotalDuration(details.totalSeconds || 0)}
                   </div>
                 </div>
                 <div>
@@ -467,7 +443,7 @@ export default function ProfessorDashboard() {
                     Arrival time
                   </span>
                   <div className="text-xs">
-                    {selectedStudent.lastArrival || "N/A"}
+                    {details.lastArrival || "N/A"}
                   </div>
                 </div>
                 <div>
@@ -475,27 +451,27 @@ export default function ProfessorDashboard() {
                     Leave time
                   </span>
                   <div className="text-xs">
-                    {selectedStudent.lastLeave || "N/A"}
+                    {details.lastLeave || "N/A"}
                   </div>
                 </div>
                 <div>
                   <span className="text-slate-400 text-xs">Duration</span>
                   <div className="text-xs text-slate-300">
-                    {formatSessionDuration(selectedStudent)}
+                    {formatSessionDuration(details)}
                   </div>
                 </div>
                 <div>
                   <span className="text-slate-400 text-xs">Status</span>
                   <div className="text-xs">
-                    {getEffectiveStatus(selectedStudent, computeStatus)}
+                    {getEffectiveStatus(details, computeStatus)}
                   </div>
                 </div>
 
                 <div>
                   <span className="text-slate-400 text-xs">Attendance</span>
                   {(() => {
-                    const effectiveStatus = getEffectiveStatus(selectedStudent, computeStatus);
-                    const { attended, total, percent } = getAttendanceSummary(selectedStudent, effectiveStatus);
+                    const effectiveStatus = getEffectiveStatus(details, computeStatus);
+                    const { attended, total, percent } = getAttendanceSummary(details, effectiveStatus);
                     const color = getAttendanceColorClass(percent);
                     const emoji = getAttendanceEmoji(percent);
 
@@ -550,25 +526,19 @@ export default function ProfessorDashboard() {
           {/* Default shows 1 card per row. Medium screens shows 2 cards per row, while
               large screens shows 3 cards per row. */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {students.map((s) => {
-              const effectiveStatus = getEffectiveStatus(s, computeStatus);
-              const attendanceSummary = getAttendanceSummary(s, effectiveStatus);
-              return (
-                <StudentCard
-                  key={s.id}
-                  student={{ ...s, status: effectiveStatus }}
-                  attendanceSummary={attendanceSummary}
-                  onClick={() => {
-                    if (selectedStudent && selectedStudent.id === s.id) {
-                      setSelectedStudent(null);
-                    } else {
-                      setSelectedStudent(s);
-                    }
-                  }}
-                />
-              );
-            })}
-          </div>
+            <StudentCard
+                student={{ ...student, status: effectiveStatus }}
+                attendanceSummary={attendanceSummary}
+                onClick={() => {
+                // optional: toggle details
+                if (selectedStudent) {
+                    setSelectedStudent(null);
+                } else {
+                    setSelectedStudent(student);
+                }
+                }}
+            />
+            </div>
         </section>
       </main>
     </div>

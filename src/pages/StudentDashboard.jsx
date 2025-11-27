@@ -168,7 +168,7 @@ function getAttendanceEmoji(percent) {
   return "🔴";                    // very bad
 }
 
-export default function StudentDashboard({ student }) {
+export default function StudentDashboard({ student, onLogout } ) {
     if (!student) {
         return (
         <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center">
@@ -284,9 +284,20 @@ export default function StudentDashboard({ student }) {
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
         <h1 className="text-lg font-semibold">Student Dashboard</h1>
-        <div className="text-sm text-slate-300">
-          Smart Classroom Attendance System • <span className="font-medium">Student</span>
-        </div>
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:block text-sm text-slate-300">
+              Smart Classroom Attendance System
+            </div>
+            <button
+              type="button"
+              onClick={onLogout}
+              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-200
+                        hover:border-emerald-400 hover:text-emerald-300 hover:bg-slate-900/80
+                        transition-colors"
+            >
+              Logout
+            </button>
+          </div>
       </header>
 
       {/* Main content area */}

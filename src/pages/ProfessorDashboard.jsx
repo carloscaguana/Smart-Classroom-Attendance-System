@@ -193,7 +193,7 @@ function getAttendanceEmoji(percent) {
   return "🔴";                    // very bad
 }
 
-export default function ProfessorDashboard() {
+export default function ProfessorDashboard({ onLogout }) {
   const [courseName, setCourseName] = useState("CS410");
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("10:15");
@@ -312,9 +312,20 @@ export default function ProfessorDashboard() {
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
         <h1 className="text-lg font-semibold">Professor Dashboard</h1>
-        <div className="text-sm text-slate-300">
-          Smart Classroom Attendance System • <span className="font-medium">Professor</span>
-        </div>
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:block text-sm text-slate-300">
+              Smart Classroom Attendance System
+            </div>
+            <button
+              type="button"
+              onClick={onLogout}
+              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-200
+                        hover:border-emerald-400 hover:text-emerald-300 hover:bg-slate-900/80
+                        transition-colors"
+            >
+              Logout
+            </button>
+          </div>
       </header>
 
       {/* Main content area */}

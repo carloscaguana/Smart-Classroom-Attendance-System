@@ -1,6 +1,7 @@
 import { useState } from "react";
 import StudentCard from "../components/StudentCard.jsx";
 import { formatTotalDuration } from '../utils/time.jsx';
+import { MOCK_STUDENTS } from "../data/mockStudents.js";
 
 const STATUS_OPTIONS = [
   "ON_TIME",
@@ -18,29 +19,6 @@ const PRESENT_STATUSES = ["ON_TIME", "LATE", "EXCUSED"];
 // Statuses that count towards attendance calculation
 // Doesn't include PENDING and UNKNOWN
 const COUNTED_STATUSES = ["ON_TIME", "LATE", "ABSENT", "SKIPPED", "EXCUSED"];
-
-// Temporary mock data
-const MOCK_STUDENTS = [
-  // ON_TIME (with leave time)
-  {
-    id: "s1",
-    name: "Saturo Gojo",
-    uid: "04:A3:BC:91",
-    totalSeconds: 5400,
-    visitCount: 3,
-    lastArrival: "2025-11-25 09:05",
-    lastLeave: "2025-11-25 10:10",
-    status: "PENDING",
-    overrideStatus: null,
-    attendanceRecords: [
-      { date: "2025-11-11", status: "ON_TIME" },
-      { date: "2025-11-13", status: "ON_TIME" },
-      { date: "2025-11-18", status: "LATE" },
-      { date: "2025-11-20", status: "ON_TIME" },
-      { date: "2025-11-25", status: "ON_TIME" },
-    ],
-  },
-];
 
 // Parses timestamp in "YYYY-MM-DD HH:MM" format and returns total minutes
 // Time is in 24-hour format

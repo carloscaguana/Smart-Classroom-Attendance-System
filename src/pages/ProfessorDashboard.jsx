@@ -360,7 +360,7 @@ export default function ProfessorDashboard({ onLogout }) {
                     Class Attendance Overview
                   </h2>
                   <p className={`text-sm font-medium ${color}`}>
-                    Average Attendance: {percent}%{" "}
+                    Average Attendance: {percent.toFixed(2)}%{" "}
                     {totalSessions > 0 &&
                       `(${totalAttended}/${totalSessions} total session-marks)`}
                   </p>
@@ -550,7 +550,7 @@ export default function ProfessorDashboard({ onLogout }) {
                         <div>
                           <div className={`text-sm font-semibold ${color}`}>
                             {total > 0
-                              ? `${percent}% attendance (${attended}/${total} sessions)`
+                              ? `${percent.toFixed(2)}% attendance (${attended}/${total} sessions)`
                               : "No attendance data"}
                           </div>
                           {total > 0 && (

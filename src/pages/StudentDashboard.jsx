@@ -333,7 +333,7 @@ export default function StudentDashboard({ student, onLogout } ) {
                     Your attendance overview
                   </h2>
                   <p className={`text-sm font-medium ${color}`}>
-                    Average attendance: {percent}%{" "}
+                    Average attendance: {percent.toFixed(2)}%{" "}
                     {total > 0
                         ? `(${attended}/${total} sessions)`
                         : "No attendance data yet"
@@ -508,7 +508,7 @@ export default function StudentDashboard({ student, onLogout } ) {
                         <div>
                           <div className={`text-sm font-semibold ${color}`}>
                             {total > 0
-                              ? `${percent}% attendance (${attended}/${total} sessions)`
+                              ? `${percent.toFixed(2)}% attendance (${attended}/${total} sessions)`
                               : "No attendance data"}
                           </div>
                           {total > 0 && (

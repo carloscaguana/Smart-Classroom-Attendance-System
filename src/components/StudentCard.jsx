@@ -114,7 +114,7 @@ export default function StudentCard({ student, attendanceSummary, onClick }) {
         <div className="flex justify-between">
           <span>Attendance:</span>
           <span className="text-slate-100">
-            {total > 0 ? `${percent}% (${attended}/${total})` : "N/A"}
+            {total > 0 ? `${percent.toFixed(2)}% (${attended}/${total})` : "N/A"}
           </span>
         </div>
       </div>

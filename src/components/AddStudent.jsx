@@ -13,7 +13,7 @@ export default function AddStudent(){
     // function that adds to document all student attributes
     async function addStudent() {
         try{
-            await addDoc(collection(db, "students"),{
+            await addDoc(collection(db, "Students"),{
                 sid: studentId,
                 name: studentName, 
                 major: major,
@@ -21,7 +21,7 @@ export default function AddStudent(){
             });
             alert("Student added!");
 
-            // reset Form
+            // reset form
             setStudentId("");
             setStudentName("");
             setMajor("");

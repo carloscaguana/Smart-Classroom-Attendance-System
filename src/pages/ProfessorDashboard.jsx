@@ -151,6 +151,7 @@ export default function ProfessorDashboard({ onLogout }) {
             selectedStudent={selectedStudent}
             computeStatus={computeStatus}
             onOverrideStatusChange={setOverrideStatus}
+            showOverrideControls={true}
           />
         </section>
 

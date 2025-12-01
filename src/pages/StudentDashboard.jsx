@@ -1,13 +1,15 @@
 import { useState } from "react";
 import StudentCard from "../components/StudentCard.jsx";
-import { formatTotalDuration } from '../utils/time.jsx';
 
 import { 
           getMinuteFromTimestring, getMinuteFromTimestamp, getSessionDurationMinutes,
-          formatSessionDuration, getEffectiveStatus, getAttendanceSummary,
-          getAttendanceColorClass, 
-          getAttendanceEmoji
+          getEffectiveStatus, getAttendanceSummary,
 } from "../utils/attendance.js";
+
+import DashboardLayout from "../layout/DashboardLayout.jsx";
+import StudentDetailsPanel from "../components/StudentDetailsPanel.jsx";
+import StudentAttendanceOverview from "../components/StudentAttendanceOverview.jsx";
+import StudentCourseConfigPanel from "../components/StudentCourseConfigPanel.jsx";
 
 export default function StudentDashboard({ student, onLogout } ) {
     if (!student) {
@@ -19,19 +21,16 @@ export default function StudentDashboard({ student, onLogout } ) {
         </div>
         );
     }
-  const [courseName, setCourseName] = useState("CS410");
-  const [startTime, setStartTime] = useState("09:00");
-  const [endTime, setEndTime] = useState("10:15");
-  const [graceMinutes, setGraceMinutes] = useState(10);
+  const [courseName] = useState("CS410");
+  const [startTime] = useState("09:00");
+  const [endTime] = useState("10:15");
+  const [graceMinutes] = useState(10);
 
-  const [minMinutesPresent, setMinMinutesPresent] = useState(30);
+  const [minMinutesPresent] = useState(30);
 
   // const [students, setStudents] = useState(MOCK_STUDENTS);
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const details = selectedStudent || student;
-
-  const effectiveStatus = getEffectiveStatus(student, computeStatus);
-  const attendanceSummary = getAttendanceSummary(student, effectiveStatus)
+  //const details = selectedStudent || student;
 
   function computeStatus(student) {
     // Course start and end times in minutes
@@ -118,255 +117,34 @@ export default function StudentDashboard({ student, onLogout } ) {
     return "PENDING";
   }
   
+  const effectiveStatus = getEffectiveStatus(student, computeStatus);
+  const attendanceSummary = getAttendanceSummary(student, effectiveStatus);
+
   return (
     // How to comment: {/* Comment: https://stackoverflow.com/questions/30766441/how-to-use-comments-in-react */}
     // Entire page
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
-        <h1 className="text-lg font-semibold">Student Dashboard</h1>
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:block text-sm text-slate-300">
-              Smart Classroom Attendance System
-            </div>
-            <button
-              type="button"
-              onClick={onLogout}
-              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-200
-                        hover:border-emerald-400 hover:text-emerald-300 hover:bg-slate-900/80
-                        transition-colors"
-            >
-              Logout
-            </button>
-          </div>
-      </header>
-
-      {/* Main content area */}
-      <main className="px-6 py-4 space-y-6">
-        <section className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 mb-2">
-          {(() => {
-            const effectiveStatus = getEffectiveStatus(student, computeStatus);
-            const {attended, total, percent} = getAttendanceSummary(student, effectiveStatus);
-            const color = getAttendanceColorClass(percent);
-            const emoji = getAttendanceEmoji(percent);
-
-            return (
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-sm font-semibold mb-1">
-                    Your attendance overview
-                  </h2>
-                  <p className={`text-sm font-medium ${color}`}>
-                    Average attendance: {percent.toFixed(2)}%{" "}
-                    {total > 0
-                        ? `(${attended}/${total} sessions)`
-                        : "No attendance data yet"
-                    }
-                  </p>
-                  <p className="text-[11px] text-slate-400 mt-1">
-                    Based on counted statuses: ON_TIME, LATE, ABSENT, SKIPPED, EXCUSED.
-                    Present = ON_TIME, LATE, or EXCUSED. PENDING / UNKNOWN are not counted.
-                  </p>
-                </div>
-                <div className="text-3xl">
-                  {emoji}
-                </div>
-              </div>
-            );
-          })()}
-        </section>
+    <DashboardLayout title="Student Dashboard" onLogout={onLogout}>
+        <StudentAttendanceOverview
+          student={student}
+          computeStatus={computeStatus}
+        />
         {/* Course configuration area */}
         <section className="grid md:grid-cols-[2fr,3fr] gap-4">
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-            <h2 className="text-sm font-semibold mb-3">
-              Course Information
-            </h2>
-            {/* Setting course name */}
-            <div className="space-y-3 text-sm">
-              <div>
-                <label className="block text-xs text-slate-400 mb-1">
-                  Course Name
-                </label>
-                <input
-                  type="text"
-                  value={courseName}
-                  //onChange={(e) => setCourseName(e.target.value)}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm"
-                  placeholder="e.g. CS101 - Intro to CS"
-                  disabled
-                />
-              </div>
-
-              {/* Setting start time */}
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs text-slate-400 mb-1">
-                    Start Time
-                  </label>
-                  <input
-                    type="time"
-                    value={startTime}
-                    //onChange={(e) => setStartTime(e.target.value)}
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm"
-                    disabled
-                  />
-                </div>
-                {/* Setting end time */}
-                <div>
-                  <label className="block text-xs text-slate-400 mb-1">
-                    End Time
-                  </label>
-                  <input
-                    type="time"
-                    value={endTime}
-                    //onChange={(e) => setEndTime(e.target.value)}
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm"
-                    disabled
-                  />
-                </div>
-                {/* Setting grace period */}
-                <div>
-                  <label className="block text-xs text-slate-400 mb-1">
-                    Grace Minutes For Arrival And Leave
-                  </label>
-                  <input
-                    type="number"
-                    value={graceMinutes}
-                    // onChange={(e) =>
-                    //   setGraceMinutes(Number(e.target.value))
-                    // }
-                    className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm"
-                    disabled
-                  />
-                </div>
-                {/* Setting minimum minutes present */}
-                </div>
-                  <div>
-                  <label className="block text-xs text-slate-400 mb-1">
-                      Minimum Minutes Present To Mark As Attended
-                  </label>
-                  <input
-                      type="number"
-                      value={minMinutesPresent}
-                      //onChange={(e) => setMinMinutesPresent(Number(e.target.value))}
-                      className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm"
-                      disabled
-                  />
-                </div>
-              <p className="text-xs text-slate-400 mt-1">
-                These values calculates who is considered{" "}
-                <span className="text-emerald-300">ON_TIME</span>,
-                {" "} <span className="text-red-300">LATE</span>,
-                {" "} <span className="text-amber-300">PENDING</span>,
-                {" "} <span className="text-fuchsia-300">ABSENT</span>, and
-                {" "} <span className="text-pink-300">SKIPPED</span>,
-                based on your
-                arrival and leave time.
-              </p>
-            </div>
-          </div>
+          <StudentCourseConfigPanel
+            courseName={courseName}
+            startTime={startTime}
+            endTime={endTime}
+            graceMinutes={graceMinutes}
+            minMinutesPresent={minMinutesPresent}
+          />
 
           {/* Selected student details */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-            <h2 className="text-sm font-semibold mb-3">
-              Additional Details
-            </h2>
-
-            {selectedStudent ? (
-              <div className="text-sm text-slate-200 space-y-2">
-                <div>
-                  <span className="text-slate-400 text-xs">Name</span>
-                  <div className="font-medium">{details.name}</div>
-                </div>
-                <div>
-                  <span className="text-slate-400 text-xs">UID</span>
-                  <div className="text-xs text-slate-300">
-                    {details.uid}
-                  </div>
-                </div>
-                <div>
-                  <span className="text-slate-400 text-xs">Total time</span>
-                  <div className="text-xs text-slate-300">
-                    {formatTotalDuration(details.totalSeconds || 0)}
-                  </div>
-                </div>
-                <div>
-                  <span className="text-slate-400 text-xs">
-                    Arrival time
-                  </span>
-                  <div className="text-xs">
-                    {details.lastArrival || "N/A"}
-                  </div>
-                </div>
-                <div>
-                  <span className="text-slate-400 text-xs">
-                    Leave time
-                  </span>
-                  <div className="text-xs">
-                    {details.lastLeave || "N/A"}
-                  </div>
-                </div>
-                <div>
-                  <span className="text-slate-400 text-xs">Duration</span>
-                  <div className="text-xs text-slate-300">
-                    {formatSessionDuration(details)}
-                  </div>
-                </div>
-                <div>
-                  <span className="text-slate-400 text-xs">Status</span>
-                  <div className="text-xs">
-                    {getEffectiveStatus(details, computeStatus)}
-                  </div>
-                </div>
-
-                <div>
-                  <span className="text-slate-400 text-xs">Attendance</span>
-                  {(() => {
-                    const effectiveStatus = getEffectiveStatus(details, computeStatus);
-                    const { attended, total, percent } = getAttendanceSummary(details, effectiveStatus);
-                    const color = getAttendanceColorClass(percent);
-                    const emoji = getAttendanceEmoji(percent);
-
-                    return (
-                      <div className="mt-1 flex items-center justify-between">
-                        <div>
-                          <div className={`text-sm font-semibold ${color}`}>
-                            {total > 0
-                              ? `${percent.toFixed(2)}% attendance (${attended}/${total} sessions)`
-                              : "No attendance data"}
-                          </div>
-                          {total > 0 && (
-                            <div className="text-[10px] text-slate-500">
-                              Present = ON_TIME, LATE, or EXCUSED
-                            </div>
-                          )}
-                        </div>
-                        <div className="text-2xl ml-3">
-                          {emoji}
-                          {/* Image alternative (I might implement this later)
-                            <img
-                              src={getAttendanceImageSrc(percent)}
-                              alt="Attendance tier"
-                              className="w-10 h-10"
-                            />
-                          */}
-                        </div>
-                      </div>
-                    );
-                  })()}
-                </div>
-
-                <p className="text-xs text-slate-400 mt-4">
-                  TODO: per-session history, lateness for
-                  each day, etc.
-                </p>
-              </div>
-            ) : (
-              <p className="text-xs text-slate-400">
-                Additional details about your attendance will appear here when you click on your "Quick Overview" card.
-              </p>
-            )}
-          </div>
+          <StudentDetailsPanel
+            selectedStudent={selectedStudent}
+            computeStatus={computeStatus}
+            onOverrideStatusChange={() => {}}
+            showOverrideControls={false}
+          />
         </section>
 
         {/* Student cards grid */}
@@ -392,7 +170,6 @@ export default function StudentDashboard({ student, onLogout } ) {
             />
             </div>
         </section>
-      </main>
-    </div>
+    </DashboardLayout>
   );
 }

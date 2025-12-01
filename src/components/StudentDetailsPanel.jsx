@@ -12,6 +12,7 @@ export default function StudentDetailsPanel({
   selectedStudent,
   computeStatus,
   onOverrideStatusChange,
+  showOverrideControls = true,
 }) {
   return (
     <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
@@ -69,30 +70,31 @@ export default function StudentDetailsPanel({
                     {getEffectiveStatus(selectedStudent, computeStatus)}
                   </div>
                 </div>
-                <div>
-                  <span className="text-slate-400 text-xs">Override Status</span>
-                  <select
-                    className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500
-                                hover:border-emerald-500 hover:bg-slate-900 transition-colors"
-                    value={selectedStudent.overrideStatus || ""}
-                    onChange={(e) =>
-                      onOverrideStatusChange(selectedStudent.id, e.target.value)
-                    }
-                  >
-                    <option value="">Use Automatic</option>
-                    {STATUS_OPTIONS.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
-                  <p className="text-[10px] text-slate-500 mt-2">
-                    Choosing a value here locks this student&apos;s status and
-                    ignores automatic rules until you switch back to
-                    <span className="italic"> Use automatic</span>.
-                  </p>
-                </div>
-
+                {showOverrideControls && (
+                    <div>
+                    <span className="text-slate-400 text-xs">Override Status</span>
+                    <select
+                      className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500
+                                  hover:border-emerald-500 hover:bg-slate-900 transition-colors"
+                      value={selectedStudent.overrideStatus || ""}
+                      onChange={(e) =>
+                        onOverrideStatusChange(selectedStudent.id, e.target.value)
+                      }
+                    >
+                      <option value="">Use Automatic</option>
+                      {STATUS_OPTIONS.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                    <p className="text-[10px] text-slate-500 mt-2">
+                      Choosing a value here locks this student&apos;s status and
+                      ignores automatic rules until you switch back to
+                      <span className="italic"> Use automatic</span>.
+                    </p>
+                  </div>
+                )}
                 <div>
                   <span className="text-slate-400 text-xs">Attendance</span>
                   {(() => {

@@ -1,14 +1,11 @@
 import { useState } from "react";
-import StudentCard from "../components/StudentCard.jsx";
-import { formatTotalDuration } from '../utils/time.jsx';
+
 import { MOCK_STUDENTS } from "../data/mockStudents.js";
-import { STATUS_OPTIONS,
+import {
           getMinuteFromTimestring, getMinuteFromTimestamp, getSessionDurationMinutes,
-          formatSessionDuration, getEffectiveStatus, getAttendanceSummary,
-          getClassAttendanceSummary, getAttendanceColorClass, 
-          getAttendanceEmoji
 } from "../utils/attendance.js";
 
+import DashboardLayout from "../layout/DashboardLayout.jsx";
 import ClassAttendanceOverview from "../components/ClassAttendanceOverview.jsx";
 import CourseConfigPanel from "../components/CourseConfigPanel.jsx";
 import StudentDetailsPanel from "../components/StudentDetailsPanel.jsx";
@@ -129,28 +126,7 @@ export default function ProfessorDashboard({ onLogout }) {
   return (
     // How to comment: {/* Comment: https://stackoverflow.com/questions/30766441/how-to-use-comments-in-react */}
     // Entire page
-    <div className="min-h-screen bg-slate-950 text-slate-100">
-      {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
-        <h1 className="text-lg font-semibold">Professor Dashboard</h1>
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:block text-sm text-slate-300">
-              Smart Classroom Attendance System
-            </div>
-            <button
-              type="button"
-              onClick={onLogout}
-              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-200
-                        hover:border-emerald-400 hover:text-emerald-300 hover:bg-slate-900/80
-                        transition-colors"
-            >
-              Logout
-            </button>
-          </div>
-      </header>
-
-      {/* Main content area */}
-      <main className="px-6 py-4 space-y-6">
+    <DashboardLayout title="Professor Dashboard" onLogout={onLogout}>
         <ClassAttendanceOverview 
             students = {students}
             computeStatus = {computeStatus} 
@@ -185,7 +161,6 @@ export default function ProfessorDashboard({ onLogout }) {
           computeStatus={computeStatus}
           onSelectStudent={setSelectedStudent}
         />
-      </main>
-    </div>
+    </DashboardLayout>
   );
 }

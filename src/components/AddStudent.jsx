@@ -46,7 +46,7 @@ export default function AddStudent(){
       />
       <input
         value={major}
-        onChange={e => setStudentName(e.target.value)}
+        onChange={e => setMajor(e.target.value)}
         placeholder="Major"
       />
 

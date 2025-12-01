@@ -2,10 +2,10 @@ import { useState } from "react";
 import StudentCard from "../components/StudentCard.jsx";
 import { formatTotalDuration } from '../utils/time.jsx';
 
-import { STATUS_OPTIONS,
+import { 
           getMinuteFromTimestring, getMinuteFromTimestamp, getSessionDurationMinutes,
           formatSessionDuration, getEffectiveStatus, getAttendanceSummary,
-          getClassAttendanceSummary, getAttendanceColorClass, 
+          getAttendanceColorClass, 
           getAttendanceEmoji
 } from "../utils/attendance.js";
 

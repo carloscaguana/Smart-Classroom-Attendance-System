@@ -77,51 +77,51 @@ export default function ProfessorCourseSelector({ profId, onSelectCourse, onLogo
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Existing courses */}
             {courses.map((course) => (
-              <div
+              <button
                 key={course.id}
-                className="group rounded-2xl border border-slate-800 bg-slate-900/70 p-4
-                          hover:border-emerald-400 hover:bg-slate-900/90 transition-colors"
+                type="button"
+                onClick={() => onSelectCourse(course)}
+                className="relative group text-left w-full rounded-2xl border border-slate-800
+                          bg-slate-900/70 p-4 hover:border-emerald-400 hover:bg-slate-900/90
+                          transition-colors"
               >
-                <div className="flex items-start justify-between mb-2">
-                  <button
-                    type="button"
-                    onClick={() => onSelectCourse(course)}
-                    className="text-left"
-                  >
-                    <div className="text-xs font-semibold text-slate-300">
-                      {course.course_id || "(No ID)"}
-                    </div>
-                    <div className="text-sm font-medium text-slate-100">
-                      {course.course_name || "Untitled course"}
-                    </div>
-                  </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation(); // avoids card trigger
+                    handleDeleteCourse(course);
+                  }}
+                  className="absolute top-3 right-2 text-[10px] px-2 py-0.5 rounded-full
+                            border border-red-500/50 text-red-300
+                            hover:bg-red-500/10 hover:border-red-400
+                            hover:shadow-lg hover:shadow-red-500/50
+                            hover:-translate-y-1 hover:scale-101
+                            transition-all duration-400"
+                >
+                  Delete
+                </button>
 
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteCourse(course);
-                    }}
-                    className="text-[10px] px-2 py-0.5 rounded-full border border-red-500/50 text-red-300
-                              hover:bg-red-500/10 hover:border-red-400 
-                              hover:-translate-y-1 hover:scale-101
-                              hover:shadow-lg hover:shadow-red-500/50
-                              transition-all duration-400"
-                  >
-                    Delete
-                  </button>
+                <div className="text-xs font-semibold text-slate-300 mb-1">
+                  {course.course_id || "(No ID)"}
                 </div>
 
-                <div className="mt-1 text-[11px] text-slate-400">
+                <div className="text-sm font-medium text-slate-100">
+                  {course.course_name || "Untitled course"}
+                </div>
+
+                <div className="mt-2 text-[11px] text-slate-400">
                   {course.start_time && course.end_time
-                    ? `Time: ${course.start_time} – ${course.end_time}`
-                    : "Time: not configured"}
+                    ? `Time: ${course.start_time} – ${course.end_time}` : "Time: not configured"}
                 </div>
+
                 <div className="mt-1 text-[11px] text-slate-500">
-                  Grace: {course.grace_minutes ?? 0} min • Min present:{" "}
-                  {course.min_minutes_present ?? 0} min
+                  Grace: {course.grace_minutes ?? 0} min
                 </div>
-              </div>
+
+                <div className="mt-1 text-[11px] text-slate-500">
+                  Min present: {course.min_minutes_present ?? 0} min
+                </div>
+              </button>
             ))}
 
             {/* Add-course card */}

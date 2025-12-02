@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { db } from "../utils/firebase";
-import { doc, getDoc, setDoc, getDocs, collection, deleteDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, getDocs, collection, deleteDoc, updateDoc, onSnapshot } from "firebase/firestore";
 
 import { MOCK_STUDENTS } from "../data/mockStudents.js";
 import {
@@ -59,61 +59,59 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
 
   // Load course config from Firestore on mount
   useEffect(() => {
-    async function loadConfig() {
-      if (!courseDocId) return;
+    if (!courseDocId) return;
 
-      try {
-        const ref = doc(db, "courses", courseDocId);
-        const snap = await getDoc(ref);
+    const ref = doc(db, "courses", courseDocId);
 
-        if (snap.exists()) {
-          const data = snap.data();
+    const unsubscribe = onSnapshot(
+      ref,
+      (snap) => {
+        if (!snap.exists()) return;
+        const data = snap.data();
 
-          // Only override if values exist, otherwise keep current defaults
-          if (data.course_name) {
-            setCourseName(data.course_name);
-          }
-          if (data.start_time) {
-            setStartTime(data.start_time);
-          }
-          if (data.end_time) {
-            setEndTime(data.end_time);
-          }
-          if (typeof data.grace_minutes === "number") {
-            setGraceMinutes(data.grace_minutes);
-          }
-          if (typeof data.min_minutes_present === "number") {
-            setMinMinutesPresent(data.min_minutes_present);
-          }
-        }
-      } catch (e) {
-        console.error("Error loading course config:", e);
-        // Fail silently in UI for now; we still have local defaults
+        if (data.course_name) setCourseName(data.course_name);
+        if (data.start_time) setStartTime(data.start_time);
+        if (data.end_time) setEndTime(data.end_time);
+        if (typeof data.grace_minutes === "number")
+          setGraceMinutes(data.grace_minutes);
+        if (typeof data.min_minutes_present === "number")
+          setMinMinutesPresent(data.min_minutes_present);
+      },
+      (err) => {
+        console.error("Error loading course config (onSnapshot):", err);
       }
-    }
+    );
 
-    loadConfig();
+    return () => unsubscribe();
   }, [courseDocId]);
 
-  useEffect(() => {
-    async function fetchStudents() {
-      try {
-        const snap = await getDocs(
-          collection(db, "courses", courseDocId, "students")
-        );
-        const data = snap.docs.map((doc) => ({
-          id: doc.id, // UID
-          ...doc.data(),
+   useEffect(() => {
+    if (!courseDocId) return;
+
+    const colRef = collection(db, "courses", courseDocId, "students");
+
+    const unsubscribe = onSnapshot(
+      colRef,
+      (snap) => {
+        const data = snap.docs.map((docSnap) => ({
+          id: docSnap.id,
+          ...docSnap.data(),
         }));
         setStudents(data);
-      } catch (e) {
-        console.error("[ProfessorDashboard] Error fetching students:", e);
-      }
-    }
 
-    if (courseDocId) {
-      fetchStudents();
-    }
+        // keep selectedStudent in sync if it exists
+        setSelectedStudent((prev) => {
+          if (!prev) return prev;
+          const updated = data.find((s) => s.id === prev.id);
+          return updated || null;
+        });
+      },
+      (err) => {
+        console.error("[ProfessorDashboard] onSnapshot students error:", err);
+      }
+    );
+
+    return () => unsubscribe();
   }, [courseDocId]);
 
   // Save course configuration back to Firestore
@@ -401,7 +399,7 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
             lastArrival: s.lastArrival || null,
             lastLeave: s.lastLeave || null,
             durationSeconds: durSeconds,
-            visitCount: s.visitCout || 0
+            visitCount: s.visitCount || 0
           };
 
           const newRecords = [...existingRecords, record];

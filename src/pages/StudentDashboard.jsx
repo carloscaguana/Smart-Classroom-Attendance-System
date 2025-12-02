@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import StudentCard from "../components/StudentCard.jsx";
 import { db } from "../utils/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 
 import {
   getMinuteFromTimestring,
@@ -67,38 +67,40 @@ export default function StudentDashboard({
 
   // Firestore fetch
   useEffect(() => {
-    async function fetchStudentForCourse() {
-      if (!courseDocId || !uid) return;
+    if (!courseDocId || !uid) return;
 
-      try {
-        setLoading(true);
-        setLoadError("");
+    setLoading(true);
+    setLoadError("");
 
-        const ref = doc(db, "courses", courseDocId, "students", uid);
-        const snap = await getDoc(ref);
+    const ref = doc(db, "courses", courseDocId, "students", uid);
 
+    const unsubscribe = onSnapshot(
+      ref,
+      (snap) => {
         if (snap.exists()) {
           const data = snap.data();
           const full = { id: snap.id, ...data };
           setCourseStudent(full);
-          //setSelectedStudent(full);
+          // don't auto-select; you still control selectedStudent via card click
+          setLoadError("");
         } else {
-          // not registered to this course
           setCourseStudent(null);
           setSelectedStudent(null);
           setLoadError(
             "You are not registered for this course in the system."
           );
         }
-      } catch (e) {
-        console.error("[StudentDashboard] Error loading student:", e);
+        setLoading(false);
+      },
+      (err) => {
+        console.error("[StudentDashboard] onSnapshot error:", err);
         setLoadError("Failed to load your attendance data.");
-      } finally {
         setLoading(false);
       }
-    }
+    );
 
-    fetchStudentForCourse();
+    // cleanup when course/uid changes or component unmounts
+    return () => unsubscribe();
   }, [courseDocId, uid]);
 
   function computeAutomaticStatus(s) {

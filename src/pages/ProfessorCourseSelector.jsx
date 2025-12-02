@@ -70,7 +70,7 @@ export default function ProfessorCourseSelector({ profId, onSelectCourse, onLogo
                     {course.course_id || "(No ID)"}
                   </div>
                   <div className="text-[10px] px-2 py-0.5 rounded-full border border-slate-700 text-slate-400 group-hover:border-emerald-400 group-hover:text-emerald-300">
-                    Open
+                    Active
                   </div>
                 </div>
                 <div className="text-sm font-medium text-slate-100">

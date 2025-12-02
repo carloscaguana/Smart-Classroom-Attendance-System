@@ -99,11 +99,14 @@ export default function ProfessorCourseSelector({ profId, onSelectCourse, onLogo
                   <button
                     type="button"
                     onClick={(e) => {
-                      e.stopPropagation();   // 🔹 don’t trigger open
+                      e.stopPropagation();
                       handleDeleteCourse(course);
                     }}
                     className="text-[10px] px-2 py-0.5 rounded-full border border-red-500/50 text-red-300
-                              hover:bg-red-500/10 hover:border-red-400 transition-colors"
+                              hover:bg-red-500/10 hover:border-red-400 
+                              hover:-translate-y-1 hover:scale-101
+                              hover:shadow-lg hover:shadow-red-500/50
+                              transition-all duration-400"
                   >
                     Delete
                   </button>

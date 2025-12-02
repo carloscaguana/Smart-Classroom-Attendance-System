@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { db } from "../utils/firebase";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where, deleteDoc, doc } from "firebase/firestore";
 
 import AddCourse from "../components/AddCourse.jsx";
 import DashboardLayout from "../layout/DashboardLayout.jsx";
@@ -43,6 +43,25 @@ export default function ProfessorCourseSelector({ profId, onSelectCourse, onLogo
     // onSelectCourse(newCourse);
   }
 
+  async function handleDeleteCourse(course) {
+    const ok = window.confirm(
+      `Delete course "${course.course_id || course.course_name}"? This cannot be undone.`
+    );
+
+    if (!ok) return;
+
+    try {
+      // Remove from Firestore
+      await deleteDoc(doc(db, "courses", course.id));
+
+      // Remove from local state so UI updates immediately
+      setCourses((prev) => prev.filter((c) => c.id !== course.id));
+    } catch (e) {
+      console.error("Error deleting course:", e);
+      alert("Failed to delete course. Check console for details.");
+    }
+  }
+
   return (
     <DashboardLayout title="Select a Course" onLogout={onLogout}>
       <div className="space-y-4">
@@ -58,25 +77,39 @@ export default function ProfessorCourseSelector({ profId, onSelectCourse, onLogo
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Existing courses */}
             {courses.map((course) => (
-              <button
+              <div
                 key={course.id}
-                type="button"
-                onClick={() => onSelectCourse(course)}
-                className="group text-left rounded-2xl border border-slate-800 bg-slate-900/70 p-4
-                           hover:border-emerald-400 hover:bg-slate-900/90 transition-colors"
+                className="group rounded-2xl border border-slate-800 bg-slate-900/70 p-4
+                          hover:border-emerald-400 hover:bg-slate-900/90 transition-colors"
               >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="text-xs font-semibold text-slate-300">
-                    {course.course_id || "(No ID)"}
-                  </div>
-                  <div className="text-[10px] px-2 py-0.5 rounded-full border border-slate-700 text-slate-400 group-hover:border-emerald-400 group-hover:text-emerald-300">
-                    Active
-                  </div>
+                <div className="flex items-start justify-between mb-2">
+                  <button
+                    type="button"
+                    onClick={() => onSelectCourse(course)}
+                    className="text-left"
+                  >
+                    <div className="text-xs font-semibold text-slate-300">
+                      {course.course_id || "(No ID)"}
+                    </div>
+                    <div className="text-sm font-medium text-slate-100">
+                      {course.course_name || "Untitled course"}
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();   // 🔹 don’t trigger open
+                      handleDeleteCourse(course);
+                    }}
+                    className="text-[10px] px-2 py-0.5 rounded-full border border-red-500/50 text-red-300
+                              hover:bg-red-500/10 hover:border-red-400 transition-colors"
+                  >
+                    Delete
+                  </button>
                 </div>
-                <div className="text-sm font-medium text-slate-100">
-                  {course.course_name || "Untitled course"}
-                </div>
-                <div className="mt-2 text-[11px] text-slate-400">
+
+                <div className="mt-1 text-[11px] text-slate-400">
                   {course.start_time && course.end_time
                     ? `Time: ${course.start_time} – ${course.end_time}`
                     : "Time: not configured"}
@@ -85,7 +118,7 @@ export default function ProfessorCourseSelector({ profId, onSelectCourse, onLogo
                   Grace: {course.grace_minutes ?? 0} min • Min present:{" "}
                   {course.min_minutes_present ?? 0} min
                 </div>
-              </button>
+              </div>
             ))}
 
             {/* Add-course card */}

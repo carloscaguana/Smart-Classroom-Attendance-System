@@ -1,8 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+import { db } from "../utils/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 import { MOCK_STUDENTS } from "../data/mockStudents.js";
 import {
-          getMinuteFromTimestring, getMinuteFromTimestamp, getSessionDurationMinutes,
+  getMinuteFromTimestring,
+  getMinuteFromTimestamp,
+  getSessionDurationMinutes,
 } from "../utils/attendance.js";
 
 import DashboardLayout from "../layout/DashboardLayout.jsx";
@@ -11,129 +16,194 @@ import CourseConfigPanel from "../components/CourseConfigPanel.jsx";
 import StudentDetailsPanel from "../components/StudentDetailsPanel.jsx";
 import StudentsGrid from "../components/StudentsGrid.jsx";
 
-export default function ProfessorDashboard({ onLogout }) {
-  const [courseName, setCourseName] = useState("CS410");
-  const [startTime, setStartTime] = useState("09:00");
-  const [endTime, setEndTime] = useState("10:15");
-  const [graceMinutes, setGraceMinutes] = useState(10);
+export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }) {
+  // Course configuration state (initialized from courseMeta)
+  const [courseName, setCourseName] = useState(
+    courseMeta?.course_name || courseMeta?.course_id || "CS410"
+  );
+  const [startTime, setStartTime] = useState(
+    courseMeta?.start_time || "09:00"
+  );
+  const [endTime, setEndTime] = useState(
+    courseMeta?.end_time || "10:15"
+  );
+  const [graceMinutes, setGraceMinutes] = useState(
+    typeof courseMeta?.grace_minutes === "number"
+      ? courseMeta.grace_minutes
+      : 10
+  );
+  const [minMinutesPresent, setMinMinutesPresent] = useState(
+    typeof courseMeta?.min_minutes_present === "number"
+      ? courseMeta.min_minutes_present
+      : 30
+  );
 
-  const [minMinutesPresent, setMinMinutesPresent] = useState(30);
+  // UI feedback for saving config
+  const [savingConfig, setSavingConfig] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [lastSavedAt, setLastSavedAt] = useState(null);
 
+  // Students (still local for now)
   const [students, setStudents] = useState(MOCK_STUDENTS);
   const [selectedStudent, setSelectedStudent] = useState(null);
 
+  // Load course config from Firestore on mount
+  useEffect(() => {
+    async function loadConfig() {
+      if (!courseDocId) return;
+
+      try {
+        const ref = doc(db, "courses", courseDocId);
+        const snap = await getDoc(ref);
+
+        if (snap.exists()) {
+          const data = snap.data();
+
+          // Only override if values exist, otherwise keep current defaults
+          if (data.course_name) {
+            setCourseName(data.course_name);
+          }
+          if (data.start_time) {
+            setStartTime(data.start_time);
+          }
+          if (data.end_time) {
+            setEndTime(data.end_time);
+          }
+          if (typeof data.grace_minutes === "number") {
+            setGraceMinutes(data.grace_minutes);
+          }
+          if (typeof data.min_minutes_present === "number") {
+            setMinMinutesPresent(data.min_minutes_present);
+          }
+        }
+      } catch (e) {
+        console.error("Error loading course config:", e);
+        // Fail silently in UI for now; we still have local defaults
+      }
+    }
+
+    loadConfig();
+  }, [courseDocId]);
+
+  // Save course configuration back to Firestore
+  async function handleSaveConfig() {
+    if (!courseDocId) return;
+
+    try {
+      setSavingConfig(true);
+      setSaveError("");
+
+      const ref = doc(db, "courses", courseDocId);
+
+      await setDoc(
+        ref,
+        {
+          // keep course_id & prof_id stable, use what's in courseMeta
+          course_id: courseMeta?.course_id || "",
+          prof_id: courseMeta?.prof_id || "",
+          course_name: courseName,
+          start_time: startTime,
+          end_time: endTime,
+          grace_minutes: Number(graceMinutes) || 0,
+          min_minutes_present: Number(minMinutesPresent) || 0,
+        },
+        { merge: true }
+      );
+
+      setLastSavedAt(new Date());
+    } catch (e) {
+      console.error("Error saving course config:", e);
+      setSaveError("Failed to save course configuration.");
+    } finally {
+      setSavingConfig(false);
+    }
+  }
+
+  // Override status for a student (still local)
   function setOverrideStatus(studentId, newStatus) {
-    setStudents((prev) => 
-      prev.map((s) => 
-      s.id === studentId
-          ? { ...s, overrideStatus: newStatus || null}
-          : s
+    setStudents((prev) =>
+      prev.map((s) =>
+        s.id === studentId ? { ...s, overrideStatus: newStatus || null } : s
       )
     );
 
     setSelectedStudent((prev) =>
       prev && prev.id === studentId
-          ? { ...prev, overrideStatus: newStatus || null}
-          : prev
+        ? { ...prev, overrideStatus: newStatus || null }
+        : prev
     );
   }
 
+  // Compute status (unchanged, uses state config)
   function computeStatus(student) {
-    // Course start and end times in minutes
     const startMinutes = getMinuteFromTimestring(startTime);
     const endMinutes = getMinuteFromTimestring(endTime);
 
-    // Professor hasn't selected course time
     if (startMinutes === null || endMinutes === null) {
       return "UNKNOWN";
     }
 
-    // Current real time
     const now = new Date();
-    const nowMinutes = now.getHours() * 60 + now.getMinutes() + (now.getSeconds() / 60);
+    const nowMinutes =
+      now.getHours() * 60 +
+      now.getMinutes() +
+      now.getSeconds() / 60;
 
     const arrivalInMinutes = getMinuteFromTimestamp(student.lastArrival);
     const leaveInMinutes = getMinuteFromTimestamp(student.lastLeave);
     const durationMinutes = getSessionDurationMinutes(student);
 
-    // Checks if the student arrived within the grace period
     const latestOnTime = startMinutes + graceMinutes;
-
-    // Checks if the student left within the grace period
     const latestLeaveTime = endMinutes + graceMinutes;
-
-    // Returns UNKNOWN if arrival/leave time format is invalid
-    // if (arrivalInMinutes === -1 || leaveInMinutes === -1) {
-    //   return "UNKNOWN";
-    // }
 
     if (durationMinutes === -1) {
       return "UNKNOWN";
     }
-    // null means student hasn't arrived
-    // If the current time is past class end time, that means
-    // the student never showed up for the entire session and is marked ABSENT
-    // Otherwise, the student has not arrived yet, but has time to arrive, so 
-    // they are marked PENDING
+
     if (arrivalInMinutes === null) {
-      // Current time is past class end time
       if (nowMinutes > latestLeaveTime) {
         return "ABSENT";
       }
-
-      // Student has not arrived yet, but class is ongoing
       return "PENDING";
     }
 
-    
-    // If durationMinutes is not null, that means there is an arrival and leave time
     if (durationMinutes !== null) {
-        // Student arrived but left early, so they are marked as SKIPPED
-        if (durationMinutes < minMinutesPresent) {
-            return "SKIPPED";
-        }
+      if (durationMinutes < minMinutesPresent) {
+        return "SKIPPED";
+      }
 
-        // Student arrived and left, so check if they were ON_TIME or LATE
-        if (arrivalInMinutes <= latestOnTime && leaveInMinutes <= latestLeaveTime) {
-            return "ON_TIME";
-        } else {
-            return "LATE";
-        }
+      if (
+        arrivalInMinutes <= latestOnTime &&
+        leaveInMinutes <= latestLeaveTime
+      ) {
+        return "ON_TIME";
+      } else {
+        return "LATE";
+      }
     }
 
-    
-
-    // HOWEVER, if durationMinutes is null, that means the student has not clocked out
-    // yet. So, if the current time is past the class end time, the student is SKIPPED
-    // (because they have not clocked out yet and class has ended)
-    // Otherwise, I can still check if they are ON_TIME or LATE based on their arrival time
-    // (they did not clock out but class hasn't ended yet)
     if (nowMinutes > latestLeaveTime) {
       return "SKIPPED";
     } else {
-        if (arrivalInMinutes <= latestOnTime) {
-            return "ON_TIME";
-        } else {
-            return "LATE";
-        }
+      if (arrivalInMinutes <= latestOnTime) {
+        return "ON_TIME";
+      } else {
+        return "LATE";
+      }
     }
-
-    // Default to PENDING
-    // (Maybe I should default to ABSENT?)
-    return "PENDING";
   }
-  
-  return (
-    // How to comment: {/* Comment: https://stackoverflow.com/questions/30766441/how-to-use-comments-in-react */}
-    // Entire page
-    <DashboardLayout title="Professor Dashboard" onLogout={onLogout}>
-        <ClassAttendanceOverview 
-            students = {students}
-            computeStatus = {computeStatus} 
-        />
 
-        {/* Course configuration area */}
-        <section className="grid md:grid-cols-[2fr,3fr] gap-4">
+  return (
+    <DashboardLayout title="Professor Dashboard" onLogout={onLogout}>
+      {/* Top: class overview */}
+      <ClassAttendanceOverview
+        students={students}
+        computeStatus={computeStatus}
+      />
+
+      {/* Middle: course config + student details */}
+      <section className="grid md:grid-cols-[2fr,3fr] gap-4">
+        <div>
           <CourseConfigPanel
             courseName={courseName}
             startTime={startTime}
@@ -147,21 +217,47 @@ export default function ProfessorDashboard({ onLogout }) {
             onMinMinutesPresentChange={setMinMinutesPresent}
           />
 
-          <StudentDetailsPanel
-            selectedStudent={selectedStudent}
-            computeStatus={computeStatus}
-            onOverrideStatusChange={setOverrideStatus}
-            showOverrideControls={true}
-          />
-        </section>
+          {/* Save button + status */}
+          <div className="mt-3 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleSaveConfig}
+              disabled={savingConfig}
+              className="rounded-lg border border-emerald-500 bg-emerald-600/20 px-3 py-1.5 text-xs font-medium text-emerald-200
+                         hover:bg-emerald-600/30 hover:border-emerald-400 transition-colors disabled:opacity-50"
+            >
+              {savingConfig ? "Saving..." : "Save course settings"}
+            </button>
+            {saveError && (
+              <span className="text-xs text-red-400">{saveError}</span>
+            )}
+            {!saveError && lastSavedAt && (
+              <span className="text-[11px] text-slate-500">
+                Saved at{" "}
+                {lastSavedAt.toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+            )}
+          </div>
+        </div>
 
-        {/* Student cards grid */}
-        <StudentsGrid
-          students={students}
+        <StudentDetailsPanel
           selectedStudent={selectedStudent}
           computeStatus={computeStatus}
-          onSelectStudent={setSelectedStudent}
+          onOverrideStatusChange={setOverrideStatus}
+          showOverrideControls={true}
         />
+      </section>
+
+      {/* Bottom: student cards */}
+      <StudentsGrid
+        students={students}
+        selectedStudent={selectedStudent}
+        computeStatus={computeStatus}
+        onSelectStudent={setSelectedStudent}
+      />
     </DashboardLayout>
   );
 }

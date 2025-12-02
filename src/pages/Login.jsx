@@ -4,6 +4,7 @@ import { MOCK_STUDENTS } from "../data/mockStudents.js";
 export default function Login({ onLogin }) {
   const [role, setRole] = useState("student");
   const [uid, setUid] = useState("");
+  const [profId, setProfId] = useState("");
   const [error, setError] = useState("");
 
   function handleSubmit(e) {
@@ -11,7 +12,14 @@ export default function Login({ onLogin }) {
     setError("");
 
     if (role === "professor") {
-      onLogin({ role: "professor", user: null });
+      const profTrimmed = profId.trim();
+
+      if (!profTrimmed) {
+        setError("Please enter your professor ID");
+        return;
+      }
+
+      onLogin({ role: "professor", user: { profId: profTrimmed }, });
       return;
     }
 
@@ -88,6 +96,24 @@ export default function Login({ onLogin }) {
             />
             <p className="text-[11px] text-slate-500">
               UID from NFC card will be used for authentication.
+            </p>
+          </div>
+        )}
+
+        {role === "professor" && (
+          <div className="space-y-1 text-sm">
+            <label className="block text-xs text-slate-400">
+              Professor ID (you get to create one)
+            </label>
+            <input
+              type="text"
+              value={profId}
+              onChange={(e) => setProfId(e.target.value)}
+              placeholder="e.g. Fletcher01"
+              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+            <p className="text-[11px] text-slate-500">
+              Professor ID is used to create and save courses which only that professor sees.
             </p>
           </div>
         )}

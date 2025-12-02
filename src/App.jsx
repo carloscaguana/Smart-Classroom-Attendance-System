@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Login from "./pages/Login.jsx";
-import ProfessorDashboard from "./pages/ProfessorDashboard.jsx";
+import ProfessorApp from "./pages/ProfessorApp.jsx";
 import StudentDashboard from "./pages/StudentDashboard.jsx";
 
 function App() {
@@ -15,7 +15,9 @@ function App() {
   }
 
   if (session.role === "professor") {
-    return <ProfessorDashboard onLogout={handleLogout} />;
+    const profId = session.user?.profId;
+
+    return <ProfessorApp profId={profId} onLogout={handleLogout} />;
   }
 
   if (session.role === "student") {

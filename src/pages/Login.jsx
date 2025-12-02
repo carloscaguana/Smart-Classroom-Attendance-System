@@ -49,7 +49,7 @@ export default function Login({ onLogin }) {
       const snap = await getDoc(ref);
 
       if (!snap.exists()) { 
-        setError("No student foudn with that UID.");
+        setError("No student found with that UID.");
         return;
       }
 

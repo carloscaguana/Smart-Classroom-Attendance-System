@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Login from "./pages/Login.jsx";
 import ProfessorApp from "./pages/ProfessorApp.jsx";
-import StudentDashboard from "./pages/StudentDashboard.jsx";
+import StudentApp from "./pages/StudentApp.jsx";
 
 function App() {
   const [session, setSession] = useState({ role: null, user: null });
@@ -15,14 +15,13 @@ function App() {
   }
 
   if (session.role === "professor") {
-    const profId = session.user?.profId;
-
+    const profId = session.user?.profId ?? "demo-prof";
     return <ProfessorApp profId={profId} onLogout={handleLogout} />;
   }
 
   if (session.role === "student") {
     return (
-      <StudentDashboard
+      <StudentApp
         student={session.user}
         onLogout={handleLogout}
       />

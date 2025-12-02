@@ -20,6 +20,7 @@ export default function StudentApp({ student, onLogout }) {
   return (
     <StudentDashboard
       student={student}
+      courseDocId={activeCourse.id}
       courseMeta={activeCourse}
       onLogout={onLogout}
     />

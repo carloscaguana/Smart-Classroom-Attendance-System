@@ -57,6 +57,8 @@ export default function Login({ onLogin }) {
 
       const student = {
         id: uidUpper,
+        uid: uidUpper,
+        name: data.name || data.uid || uidUpper,
         ...data,
       };
 

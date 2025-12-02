@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { db } from "../utils/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, getDocs, collection } from "firebase/firestore";
 
 import { MOCK_STUDENTS } from "../data/mockStudents.js";
 import {
@@ -15,6 +15,7 @@ import ClassAttendanceOverview from "../components/ClassAttendanceOverview.jsx";
 import CourseConfigPanel from "../components/CourseConfigPanel.jsx";
 import StudentDetailsPanel from "../components/StudentDetailsPanel.jsx";
 import StudentsGrid from "../components/StudentsGrid.jsx";
+import AddStudent from "../components/AddStudent.jsx";
 
 export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }) {
   // Course configuration state (initialized from courseMeta)
@@ -44,8 +45,9 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
   const [lastSavedAt, setLastSavedAt] = useState(null);
 
   // Students (still local for now)
-  const [students, setStudents] = useState(MOCK_STUDENTS);
+  const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [showAddStudentForm, setShowAddStudentForm] = useState(false);
 
   // Load course config from Firestore on mount
   useEffect(() => {
@@ -83,6 +85,27 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
     }
 
     loadConfig();
+  }, [courseDocId]);
+
+  useEffect(() => {
+    async function fetchStudents() {
+      try {
+        const snap = await getDocs(
+          collection(db, "courses", courseDocId, "students")
+        );
+        const data = snap.docs.map((doc) => ({
+          id: doc.id, // UID
+          ...doc.data(),
+        }));
+        setStudents(data);
+      } catch (e) {
+        console.error("[ProfessorDashboard] Error fetching students:", e);
+      }
+    }
+
+    if (courseDocId) {
+      fetchStudents();
+    }
   }, [courseDocId]);
 
   // Save course configuration back to Firestore
@@ -193,6 +216,12 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
     }
   }
 
+  function handleStudentCreated(newStudent) {
+    // update local list immediately
+    setStudents((prev) => [...prev, newStudent]);
+    setShowAddStudentForm(false);
+  }
+
   return (
     <DashboardLayout title="Professor Dashboard" onLogout={onLogout}>
       {/* Top: class overview */}
@@ -257,7 +286,16 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
         selectedStudent={selectedStudent}
         computeStatus={computeStatus}
         onSelectStudent={setSelectedStudent}
+        setShowAddStudentForm={setShowAddStudentForm}
       />
+
+      {showAddStudentForm && (
+          <AddStudent
+            courseDocId={courseDocId}
+            onCreated={handleStudentCreated}
+            onCancel={() => setShowAddStudentForm(false)}
+          />
+        )}
     </DashboardLayout>
   );
 }

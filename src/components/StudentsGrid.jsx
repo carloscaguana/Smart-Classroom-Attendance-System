@@ -6,6 +6,7 @@ export default function StudentsGrid({
   selectedStudent,
   computeStatus,
   onSelectStudent,
+  setShowAddStudentForm,
 }) {
   return (
     <section>
@@ -29,6 +30,18 @@ export default function StudentsGrid({
             />
           );
         })}
+
+        <button
+          type="button"
+          onClick={() => setShowAddStudentForm(true)}
+          className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-700
+                      bg-slate-900/40 p-4 hover:border-emerald-400 hover:bg-slate-900/80 transition-colors"
+        >
+          <div className="text-3xl mb-1">+</div>
+          <div className="text-sm font-medium text-slate-100">
+            Add a student
+          </div>
+        </button>
       </div>
     </section>
   );

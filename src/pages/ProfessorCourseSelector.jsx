@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { db } from "../utils/firebase";
-import { collection, getDocs, query, where, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, query, where, deleteDoc, doc, getDoc, setDoc } from "firebase/firestore";
 
 import AddCourse from "../components/AddCourse.jsx";
 import DashboardLayout from "../layout/DashboardLayout.jsx";
@@ -51,6 +51,45 @@ export default function ProfessorCourseSelector({ profId, onSelectCourse, onLogo
     if (!ok) return;
 
     try {
+      // Gets all students in under the course
+      const studentsSnap = await getDocs(
+        collection(db, "courses", course.id, "students")
+      );
+
+       // Deletes each student under this course, and removes the course
+       // from the students course arary (on global leve)
+      const studentCleanupPromises = studentsSnap.docs.map(async (studentDoc) => {
+        const uid = studentDoc.id;
+
+        // Deletes student under this course
+        await deleteDoc(studentDoc.ref);
+
+        // Updates global student doc
+        const globalRef = doc(db, "students", uid);
+        const globalSnap = await getDoc(globalRef);
+
+        if (globalSnap.exists()) { 
+          const data = globalSnap.data();
+          const currentCourses = Array.isArray(data.courses) ? data.courses : [];
+
+          const newCourses = currentCourses.filter((cid) => cid !== course.id);
+
+          // Removes the global student if it has no more courses
+          if (newCourses.length === 0) {
+            await deleteDoc(globalRef);
+          } else {
+            // Removes the course from the global student course array
+            await setDoc(
+              globalRef,
+              { courses: newCourses},
+              { merge: true}
+            );
+          }
+        }
+      });
+
+      await Promise.all(studentCleanupPromises);
+
       // Remove from Firestore
       await deleteDoc(doc(db, "courses", course.id));
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { db } from "../utils/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, arrayUnion } from "firebase/firestore";
 
 export default function AddStudent({ courseDocId, onCreated, onCancel }) {
   const [uid, setUid] = useState("");
@@ -20,11 +20,13 @@ export default function AddStudent({ courseDocId, onCreated, onCancel }) {
       return;
     }
 
+    const uidUpper = trimmedUid.toUpperCase();
+
     try {
       setSaving(true);
 
       const payload = {
-        uid: trimmedUid,
+        uid: uidUpper,
         name: trimmedName,
         lastArrival: null,
         lastLeave: null,
@@ -36,10 +38,20 @@ export default function AddStudent({ courseDocId, onCreated, onCancel }) {
       };
 
       // doc id = UID string
-      const studentRef = doc(db, "courses", courseDocId, "students", trimmedUid);
+      const studentRef = doc(db, "courses", courseDocId, "students", uidUpper);
       await setDoc(studentRef, payload, { merge: true });
 
-      const fullStudent = { id: trimmedUid, ...payload };
+      const globalStudentRef = doc(db, "students", uidUpper);
+      await setDoc(globalStudentRef, 
+        {
+          uid: uidUpper,
+          name: trimmedName,
+          courses: arrayUnion(courseDocId),
+        },
+        { merge: true }
+      );
+
+      const fullStudent = { id: uidUpper, ...payload };
 
       if (onCreated) onCreated(fullStudent);
       if (onCancel) onCancel();

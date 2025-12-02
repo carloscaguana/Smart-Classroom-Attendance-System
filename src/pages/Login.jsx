@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { db } from "../utils/firebase";
+import { doc, getDoc } from "firebase/firestore";
+
 import { MOCK_STUDENTS } from "../data/mockStudents.js";
 
 export default function Login({ onLogin }) {
@@ -7,7 +10,7 @@ export default function Login({ onLogin }) {
   const [profId, setProfId] = useState("");
   const [error, setError] = useState("");
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     setError("");
 
@@ -23,23 +26,45 @@ export default function Login({ onLogin }) {
       return;
     }
 
-    // student: lookup by uid (case-insensitive)
+    // student: lookup by uid
     const trimmed = uid.trim();
     if (!trimmed) {
       setError("Please enter your card UID.");
       return;
     }
 
-    const student = MOCK_STUDENTS.find(
-      (s) => s.uid.toLowerCase() === trimmed.toLowerCase()
-    );
+    // const student = MOCK_STUDENTS.find(
+    //   (s) => s.uid.toLowerCase() === trimmed.toLowerCase()
+    // );
 
-    if (!student) {
-      setError("No student found with that UID.");
-      return;
+    const uidUpper = trimmed.toUpperCase();
+
+    // if (!student) {
+    //   setError("No student found with that UID.");
+    //   return;
+    // }
+
+    try {
+      const ref = doc(db, "students", uidUpper);
+      const snap = await getDoc(ref);
+
+      if (!snap.exists()) { 
+        setError("No student foudn with that UID.");
+        return;
+      }
+
+      const data = snap.data();
+
+      const student = {
+        id: uidUpper,
+        ...data,
+      };
+
+        onLogin({ role: "student", user: student });
+    } catch (err) {
+      console.error("[Login] Error fetching student: ", err);
+      setError("Failed to look up student. Please try again.");
     }
-
-    onLogin({ role: "student", user: student });
   }
 
   return (

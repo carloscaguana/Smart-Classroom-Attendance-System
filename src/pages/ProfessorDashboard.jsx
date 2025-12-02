@@ -142,7 +142,7 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
     }
   }
 
-  // Override status for a student (still local)
+  // Override status for a student
   async function setOverrideStatus(studentId, newStatus) {
     setStudents((prev) =>
       prev.map((s) =>
@@ -252,6 +252,26 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
         doc(db, "courses", courseDocId, "students", student.id)
       );
 
+      // Delete student on global level
+      const globalRef = doc(db, "students", student.id);
+      const globalSnap = await getDoc(globalRef);
+
+      if (globalSnap.exists()) {
+        const data = globalSnap.data();
+        const currentCourses = Array.isArray(data.courses) ? data.courses : [];
+
+        const newCourses = currentCourses.filter((cid) => cid !== courseDocId);
+
+        if (newCourses.length === 0) {
+          await deleteDoc(globalRef);
+        } else {
+          await setDoc(
+            globalRef,
+            { courses: newCourses},
+            { merge : true}
+          );
+        }
+      }
       // update local state
       setStudents((prev) => prev.filter((s) => s.id !== student.id));
 

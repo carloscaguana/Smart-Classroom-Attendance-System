@@ -150,7 +150,7 @@ export default function ProfessorCourseSelector({ profId, onSelectCourse, onLogo
 
                 <div className="mt-2 text-[11px] text-slate-400">
                   {course.start_time && course.end_time
-                    ? `Time: ${course.start_time} – ${course.end_time}` : "Time: not configured"}
+                    ? `Time: ${course.start_time} - ${course.end_time}` : "Time: not configured"}
                 </div>
 
                 <div className="mt-1 text-[11px] text-slate-500">

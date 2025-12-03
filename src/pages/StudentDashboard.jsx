@@ -63,7 +63,8 @@ export default function StudentDashboard({
   const [courseStudent, setCourseStudent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
-  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
+
 
   // Firestore fetch
   useEffect(() => {
@@ -81,11 +82,10 @@ export default function StudentDashboard({
           const data = snap.data();
           const full = { id: snap.id, ...data };
           setCourseStudent(full);
-          // don't auto-select; you still control selectedStudent via card click
           setLoadError("");
         } else {
           setCourseStudent(null);
-          setSelectedStudent(null);
+          setShowDetails(false);
           setLoadError(
             "You are not registered for this course in the system."
           );
@@ -272,7 +272,7 @@ export default function StudentDashboard({
         />
 
         <StudentDetailsPanel
-          selectedStudent={selectedStudent}
+          selectedStudent={showDetails ? displayStudent : null}
           computeStatus={computeStatus}
           onOverrideStatusChange={() => {}}
           showOverrideControls={false}
@@ -287,14 +287,13 @@ export default function StudentDashboard({
           <StudentCard
             student={{ ...displayStudent, status: effectiveStatus }}
             attendanceSummary={attendanceSummary}
-            onClick={() =>
-              setSelectedStudent((prev) =>
-                prev && prev.id === displayStudent.id ? null : displayStudent
-              )
-            }
+            onClick={() => {
+              setShowDetails(prev => !prev);
+            }}
           />
         </div>
       </section>
+
     </DashboardLayout>
   );
 }

@@ -74,8 +74,11 @@ export default function StudentCourseSelector({ student, onSelectCourse, onLogou
                 type="button"
                 onClick={() => onSelectCourse(course)}
                 className="group text-left w-full rounded-2xl border border-slate-800
-                           bg-slate-900/70 p-4 hover:border-emerald-400 hover:bg-slate-900/90
-                           transition-colors"
+                           bg-slate-900/70 p-4 
+                           hover:border-emerald-500 hover:bg-slate-900
+                           hover:shadow-lg hover:shadow-emerald-500/50
+                           hover:-translate-y-1 hover:scale-101
+                           transition-all duration-400"
               >
                 <div className="text-xs font-semibold text-slate-300 mb-1">
                   {course.course_id || "(No ID)"}

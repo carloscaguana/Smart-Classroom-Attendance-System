@@ -121,8 +121,11 @@ export default function ProfessorCourseSelector({ profId, onSelectCourse, onLogo
                 type="button"
                 onClick={() => onSelectCourse(course)}
                 className="relative group text-left w-full rounded-2xl border border-slate-800
-                          bg-slate-900/70 p-4 hover:border-emerald-400 hover:bg-slate-900/90
-                          transition-colors"
+                          bg-slate-900/70 p-4 
+                          hover:border-emerald-500 hover:bg-slate-900
+                          hover:shadow-lg hover:shadow-emerald-500/50
+                          hover:-translate-y-1 hover:scale-101
+                          transition-all duration-400"
               >
                 <button
                   type="button"

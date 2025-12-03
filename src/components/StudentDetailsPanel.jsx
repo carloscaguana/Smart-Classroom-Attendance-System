@@ -122,14 +122,6 @@ export default function StudentDetailsPanel({
             {viewStudent.lastLeave || "N/A"}
           </div>
         </div>
-
-        <div>
-          <span className="text-slate-400 text-xs">Duration</span>
-          <div className="text-xs text-slate-300">
-            {formatSessionDuration(viewStudent)}
-          </div>
-        </div>
-
         <div>
           <span className="text-slate-400 text-xs">Status</span>
           <div className="text-xs">

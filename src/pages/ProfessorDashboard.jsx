@@ -50,10 +50,15 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
   // UI feedback for saving config
   const [savingConfig, setSavingConfig] = useState(false);
   const [savingAttendance, setSavingAttendance] = useState(false);
+  const [clearingStates, setClearingStates] = useState(false);
+
   const [saveError, setSaveError] = useState("");
   const [saveAttendanceError, setSaveAttendanceError] = useState("");
+  const [saveClearStateError, setClearStateError] = useState("");
+
   const [lastSavedAt, setLastSavedAt] = useState(null);
   const [lastSavedAttendance, setLastSavedAttendance] = useState(null);
+  const [lastSavedClearState, setLastSavedClearState] = useState(null);
 
   // Students (still local for now)
   const [students, setStudents] = useState([]);
@@ -360,7 +365,11 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
 
   async function finalizeTodayAttendance() {
       if (!courseDocId) return;
-      if (!students || students.length === 0) return;
+
+      if (!students || students.length === 0) {
+        window.alert(`There's no students in this course to finalize attendance!`);
+        return;
+      }
 
       const todayKey = getTodayKey();
 
@@ -377,11 +386,11 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
         for (const s of students) {
           if (!s) continue;
 
-          // 1) compute automatic + effective status
+          // compute automatic + effective status
           const auto = computeAutomaticStatus(s);
           const effectiveStatus = s.overrideStatus || auto || "UNKNOWN";
 
-          // 2) duration snapshot (seconds)
+          // duration snapshot (seconds)
           const durSeconds =
             typeof s.totalSeconds === "number"
               ? s.totalSeconds
@@ -390,7 +399,7 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
                   Math.round((getSessionDurationMinutes(s) || 0) * 60)
                 );
 
-          // 3) existing history without any previous record for today
+          // existing history without any previous record for today
           const existingRecords = Array.isArray(s.attendanceRecords)
             ? s.attendanceRecords.filter((rec) => rec.date !== todayKey)
             : [];
@@ -406,7 +415,7 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
 
           const newRecords = [...existingRecords, record];
 
-          // 4) write to Firestore
+          // write to Firestore
           const ref = doc(db, "courses", courseDocId, "students", s.id);
           await updateDoc(ref, {
             attendanceRecords: newRecords,
@@ -420,7 +429,7 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
           });
         }
 
-        // 5) update local state
+        // update local state
         if (updated.length > 0) {
           setStudents((prev) =>
             prev.map((s) => {
@@ -456,6 +465,47 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
         setSavingAttendance(false);
       }
     }
+
+    async function clearLiveStateForAllStudents() {
+      if (!courseDocId) return;
+
+      if (!students || students.length === 0) {
+        window.alert("There's no students in this course to clear their stats!");
+        return;
+      }
+
+      const confirmed = window.confirm(
+        `Clear today's live arrival/leave/totalSeconds/status/overrideStatus for ${students.length} student(s)?`
+      );
+
+      if (!confirmed) return;
+
+      try {
+        setClearingStates(true);
+        setClearStateError("");
+
+        for (const s of students) {
+          if (!s || !s.id) continue;
+          const ref = doc(db, "courses", courseDocId, "students", s.id);
+          await updateDoc(ref, {
+            lastArrival: null,
+            lastLeave: null,
+            totalSeconds: 0,
+            status: "UNKNOWN",
+            overrideStatus: null,
+          });
+        }
+        setLastSavedClearState(new Date());
+
+      } catch (e) {
+        console.error("[ProfessorDashboard] Error clearing live state:", e);
+        //alert("Failed to clear live state. Check console for details.");
+        setClearStateError("Failed to clear live state. Check console for details.");
+      } finally {
+        setClearingStates(false);
+      }
+    }
+
   return (
     <DashboardLayout title="Professor Dashboard" onLogout={onLogout}>
       {/* Top: class overview */}
@@ -523,6 +573,29 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
               <span className="text-[11px] text-slate-500">
                 Attendance saved at{" "}
                 {lastSavedAttendance.toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
+            )}
+
+            <button
+              type="button"
+              onClick={clearLiveStateForAllStudents}
+              disabled={clearingStates}
+              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-200
+                        hover:border-emerald-400 hover:bg-slate-900/80 transition-colors"
+            >
+              {clearingStates ? "Clearing students live infos..." : "Clear today's live states"}
+            </button>
+
+            {saveClearStateError && (
+              <span className="text-xs text-red-400">{saveClearStateError}</span>
+            )}
+            {!saveClearStateError && lastSavedClearState && (
+              <span className="text-[11px] text-slate-500">
+                Attendance saved at{" "}
+                {lastSavedClearState.toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",
                 })}

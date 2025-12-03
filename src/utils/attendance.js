@@ -118,6 +118,9 @@ export function getSessionDurationMinutes(student, preview = false) {
     }
   }
 
+  // if (typeof student.totalSeconds === "number") {
+  //   return student.totalSeconds / 60;
+  // }
   // Live values (used for preview, or if there's no finalized record)
   const arrival = getMinuteFromTimestamp(student.lastArrival);
   const leave = getMinuteFromTimestamp(student.lastLeave);

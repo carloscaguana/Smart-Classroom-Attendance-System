@@ -590,7 +590,7 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
               className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-200
                         hover:border-emerald-400 hover:bg-slate-900/80 transition-colors"
             >
-              {clearingStates ? "Clearing students live infos..." : "Clear today's live states"}
+              {clearingStates ? "Clearing today's students' live info..." : "Clear today's students' live info"}
             </button>
 
             {saveClearStateError && (
@@ -598,7 +598,7 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
             )}
             {!saveClearStateError && lastSavedClearState && (
               <span className="text-[11px] text-slate-500">
-                Attendance saved at{" "}
+                Today's students' live infos cleared at{" "}
                 {lastSavedClearState.toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",

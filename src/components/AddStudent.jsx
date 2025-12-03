@@ -31,7 +31,6 @@ export default function AddStudent({ courseDocId, onCreated, onCancel }) {
         lastArrival: null,
         lastLeave: null,
         totalSeconds: 0,
-        visitCount: 0,
         attendanceRecords: [],
         status: "UNKNOWN",
         overrideStatus: null,

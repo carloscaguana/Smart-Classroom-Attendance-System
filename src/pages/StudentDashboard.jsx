@@ -206,7 +206,6 @@ export default function StudentDashboard({
       attendanceRecords: [],
       status: null,
       overrideStatus: null,
-      visitCount: 0,
     };
 
     //const todayKey = new Date().toISOString().slice(0, 10);
@@ -227,10 +226,6 @@ export default function StudentDashboard({
             typeof todayRecord.durationSeconds === "number"
               ? todayRecord.durationSeconds
               : baseStudent.totalSeconds,
-          visitCount:
-            typeof todayRecord.visitCount === "number"
-              ? todayRecord.visitCount
-              : baseStudent.visitCount,
           status:
             todayRecord.overrideStatus ||
             todayRecord.status ||

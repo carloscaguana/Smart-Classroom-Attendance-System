@@ -402,7 +402,6 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
             lastArrival: s.lastArrival || null,
             lastLeave: s.lastLeave || null,
             durationSeconds: durSeconds,
-            visitCount: s.visitCount || 0
           };
 
           const newRecords = [...existingRecords, record];

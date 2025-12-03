@@ -36,7 +36,6 @@ export default function StudentCard({ student, attendanceSummary, onClick }) {
     name,
     uid,
     totalSeconds,
-    visitCount,
     lastArrival,
     lastLeave,
     status,
@@ -94,10 +93,6 @@ export default function StudentCard({ student, attendanceSummary, onClick }) {
           <span className="text-slate-100">
             {formatTotalDuration(totalSeconds || 0)}
           </span>
-        </div>
-        <div className="flex justify-between">
-          <span>Visits:</span>
-          <span className="text-slate-100">{visitCount ?? 0}</span>
         </div>
         <div className="flex justify-between">
           <span>Last arrival:</span>

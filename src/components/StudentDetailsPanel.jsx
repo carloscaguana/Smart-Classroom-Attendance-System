@@ -58,10 +58,6 @@ export default function StudentDetailsPanel({
           typeof todayRecord.durationSeconds === "number"
             ? todayRecord.durationSeconds
             : selectedStudent.totalSeconds,
-        visitCount:
-          typeof todayRecord.visitCount === "number"
-            ? todayRecord.visitCount
-            : selectedStudent.visitCount,
         status:
           todayRecord.overrideStatus ||
           todayRecord.status ||
@@ -131,13 +127,6 @@ export default function StudentDetailsPanel({
           <span className="text-slate-400 text-xs">Duration</span>
           <div className="text-xs text-slate-300">
             {formatSessionDuration(viewStudent)}
-          </div>
-        </div>
-
-        <div>
-          <span className="text-slate-400 text-xs">Visit Count</span>
-          <div className="text-xs text-slate-300">
-            {viewStudent.visitCount || 0}
           </div>
         </div>
 
@@ -256,11 +245,6 @@ export default function StudentDetailsPanel({
                       <div className="text-slate-400 mt-0.5">
                         {formatTotalDuration(rec.durationSeconds || 0)}
                       </div>
-                      {typeof rec.visitCount === "number" && (
-                        <div className="text-slate-500">
-                          visits: {rec.visitCount}
-                        </div>
-                      )}
                     </div>
                   </div>
                 );

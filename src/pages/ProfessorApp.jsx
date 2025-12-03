@@ -30,9 +30,10 @@ export default function ProfessorApp({ profId, onLogout }) {
   // Course selected so show the dashboard for that course
   return (
     <ProfessorDashboard
-      onLogout={onLogout}
       courseDocId={activeCourse.id}
       courseMeta={activeCourse}
+      onLogout={onLogout}
+      onBackToCourses={() => setActiveCourse(null)}
     />
   );
 }

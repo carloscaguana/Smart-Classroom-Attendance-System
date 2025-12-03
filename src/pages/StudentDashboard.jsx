@@ -23,6 +23,7 @@ export default function StudentDashboard({
   courseDocId,
   courseMeta,
   onLogout,
+  onBackToCourses,
 }) {
   if (!student) {
     return (
@@ -248,14 +249,14 @@ export default function StudentDashboard({
 
   if (loading) {
     return (
-      <DashboardLayout title="Student Dashboard" onLogout={onLogout}>
+      <DashboardLayout title="Student Dashboard" onLogout={onLogout} onBack={onBackToCourses}>
         <div className="text-sm text-slate-300">Loading your data…</div>
       </DashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout title="Student Dashboard" onLogout={onLogout}>
+    <DashboardLayout title="Student Dashboard" onLogout={onLogout} onBack={onBackToCourses}>
       {loadError && (
         <p className="text-xs text-red-400 mb-3">{loadError}</p>
       )}

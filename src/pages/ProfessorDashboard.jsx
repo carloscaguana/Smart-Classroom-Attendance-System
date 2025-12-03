@@ -25,7 +25,7 @@ function getTodayKey() {
   return getTodayKeyLocal();
 }
 
-export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }) {
+export default function ProfessorDashboard({ courseDocId, courseMeta, onLogout, onBackToCourses }) {
   // Course configuration state (initialized from courseMeta)
   const [courseName, setCourseName] = useState(
     courseMeta?.course_name || courseMeta?.course_id || "CS410"
@@ -511,7 +511,7 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
     }
 
   return (
-    <DashboardLayout title="Professor Dashboard" onLogout={onLogout}>
+    <DashboardLayout title="Professor Dashboard" onLogout={onLogout} onBack={onBackToCourses}>
       {/* Top: class overview */}
       <ClassAttendanceOverview
         students={students}

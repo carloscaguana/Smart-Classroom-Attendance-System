@@ -23,6 +23,7 @@ export default function StudentApp({ student, onLogout }) {
       courseDocId={activeCourse.id}
       courseMeta={activeCourse}
       onLogout={onLogout}
+      onBackToCourses={() => setActiveCourse(null)}
     />
   );
 }

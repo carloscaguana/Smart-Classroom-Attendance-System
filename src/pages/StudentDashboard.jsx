@@ -137,6 +137,10 @@ export default function StudentDashboard({
       return "PENDING";
     }
 
+    if (arrivalInMinutes > latestLeaveTime) {
+      return "ABSENT";
+    }
+
     if (durationMinutes !== null) {
       if (durationMinutes < minMinutesPresent) {
         return "SKIPPED";

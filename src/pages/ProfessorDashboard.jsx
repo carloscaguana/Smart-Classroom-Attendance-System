@@ -188,6 +188,10 @@ export default function ProfessorDashboard({ onLogout, courseDocId, courseMeta }
       return "PENDING";
     }
 
+    if (arrivalInMinutes > latestLeaveTime) {
+      return "ABSENT";
+    }
+
     if (durationMinutes !== null) {
       if (durationMinutes < minMinutesPresent) {
         return "SKIPPED";

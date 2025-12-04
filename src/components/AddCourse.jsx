@@ -93,7 +93,7 @@ export default function AddCourse({ profId, onCreated, onCancel }) {
           <input
             value={courseId}
             onChange={(e) => setCourseId(e.target.value)}
-            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 hover:border-emerald-400 hover:bg-slate-900/80 transition-colors ease-in-out"
           />
         </div>
 
@@ -104,7 +104,7 @@ export default function AddCourse({ profId, onCreated, onCancel }) {
           <input
             value={courseName}
             onChange={(e) => setCourseName(e.target.value)}
-            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 hover:border-emerald-400 hover:bg-slate-900/80 transition-colors ease-in-out"
             placeholder="e.g. Smart Classroom Attendance"
           />
         </div>
@@ -117,7 +117,7 @@ export default function AddCourse({ profId, onCreated, onCancel }) {
             type="time"
             value={startTime}
             onChange={(e) => setStartTime(e.target.value)}
-            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer hover:border-emerald-400 hover:bg-slate-900/80 transition-colors ease-in-out"
           />
         </div>
 
@@ -129,7 +129,7 @@ export default function AddCourse({ profId, onCreated, onCancel }) {
             type="time"
             value={endTime}
             onChange={(e) => setEndTime(e.target.value)}
-            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 hover:border-emerald-400 hover:bg-slate-900/80 transition-colors ease-in-out cursor-pointer"
           />
         </div>
 
@@ -141,7 +141,7 @@ export default function AddCourse({ profId, onCreated, onCancel }) {
             type="number"
             value={graceMinutes}
             onChange={(e) => setGraceMinutes(e.target.value)}
-            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 hover:border-emerald-400 hover:bg-slate-900/80 transition-colors ease-in-out"
           />
         </div>
 
@@ -153,7 +153,7 @@ export default function AddCourse({ profId, onCreated, onCancel }) {
             type="number"
             value={minMinutesPresent}
             onChange={(e) => setMinMinutesPresent(e.target.value)}
-            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 hover:border-emerald-400 hover:bg-slate-900/80 transition-colors ease-in-out"
           />
         </div>
       </div>
@@ -167,7 +167,7 @@ export default function AddCourse({ profId, onCreated, onCancel }) {
           type="submit"
           disabled={saving}
           className="rounded-lg border border-emerald-500 bg-emerald-600/20 px-3 py-1.5 text-xs font-medium text-emerald-200
-                     hover:bg-emerald-600/30 hover:border-emerald-400 transition-colors disabled:opacity-50 cursor-pointer"
+                     hover:bg-emerald-600/30 hover:border-emerald-400 transition-colors ease-in-out disabled:opacity-50 cursor-pointer"
         >
           {saving ? "Creating..." : "Create Course"}
         </button>
@@ -176,7 +176,7 @@ export default function AddCourse({ profId, onCreated, onCancel }) {
             type="button"
             onClick={onCancel}
             className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-200
-                       hover:border-slate-500 hover:bg-slate-900/80 transition-colors cursor-pointer"
+                       hover:border-slate-500 hover:bg-slate-900/80 transition-colors ease-in-out cursor-pointer"
           >
             Cancel
           </button>

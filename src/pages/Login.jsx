@@ -90,7 +90,7 @@ export default function Login({ onLogin }) {
               className={`flex-1 px-3 py-1.5 rounded-lg border text-xs ${
                 role === "student"
                   ? "border-emerald-500 bg-emerald-500/10 text-emerald-200"
-                  : "border-slate-700 bg-slate-950 text-slate-300 cursor-pointer"
+                  : "border-slate-700 bg-slate-950 text-slate-300 hover:border-emerald-400 hover:bg-slate-900/80 transition-color ease-in-out cursor-pointer"
               }`}
             >
               Student
@@ -101,7 +101,7 @@ export default function Login({ onLogin }) {
               className={`flex-1 px-3 py-1.5 rounded-lg border text-xs ${
                 role === "professor"
                   ? "border-emerald-500 bg-emerald-500/10 text-emerald-200"
-                  : "border-slate-700 bg-slate-950 text-slate-300 cursor-pointer"
+                  : "border-slate-700 bg-slate-950 text-slate-300 hover:border-emerald-400 hover:bg-slate-900/80 transition-color ease-in-out cursor-pointer"
               }`}
             >
               Professor
@@ -119,7 +119,7 @@ export default function Login({ onLogin }) {
               value={uid}
               onChange={(e) => setUid(e.target.value)}
               placeholder="e.g. 04:A3:BC:91"
-              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 hover:border-emerald-400 hover:bg-slate-900/80 transition-color ease-in-out"
             />
             <p className="text-[11px] text-slate-500">
               UID from NFC card will be used for authentication.
@@ -137,7 +137,7 @@ export default function Login({ onLogin }) {
               value={profId}
               onChange={(e) => setProfId(e.target.value)}
               placeholder="e.g. Fletcher01"
-              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500 hover:border-emerald-400 hover:bg-slate-900/80 transition-colors ease-in-out"
             />
             <p className="text-[11px] text-slate-500">
               Professor ID is used to create and save courses which only that professor sees.
@@ -149,7 +149,7 @@ export default function Login({ onLogin }) {
 
         <button
           type="submit"
-          className="w-full mt-1 rounded-lg bg-emerald-500 text-slate-950 text-sm font-medium py-1.5 hover:bg-emerald-400 transition-colors cursor-pointer"
+          className="w-full mt-1 rounded-lg bg-emerald-500 text-slate-950 text-sm font-medium py-1.5 hover:bg-emerald-400 hover:shadow-xl hover:shadow-emerald-500/50 transition-color duration-150 ease-in-out cursor-pointer"
         >
           Continue
         </button>

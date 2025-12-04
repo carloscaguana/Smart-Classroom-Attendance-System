@@ -542,7 +542,10 @@ export default function ProfessorDashboard({ courseDocId, courseMeta, onLogout, 
               onClick={handleSaveConfig}
               disabled={savingConfig}
               className="rounded-lg border border-emerald-500 bg-emerald-600/20 px-3 py-1.5 text-xs font-medium text-emerald-200
-                         hover:bg-emerald-600/30 hover:border-emerald-400 transition-colors disabled:opacity-50 cursor-pointer"
+                         hover:bg-emerald-600/30 hover:border-emerald-400
+                         hover:shadow-lg hover:shadow-emerald-500/50
+                         hover:-translate-y-1 hover:scale-101 
+                         transition-all duration-400 disabled:opacity-50 cursor-pointer"
             >
               {savingConfig ? "Saving..." : "Save course settings"}
             </button>
@@ -564,8 +567,11 @@ export default function ProfessorDashboard({ courseDocId, courseMeta, onLogout, 
               type="button"
               onClick={finalizeTodayAttendance}
               disabled={savingAttendance}
-              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-200
-                        hover:border-emerald-400 hover:bg-slate-900/80 transition-colors cursor-pointer"
+              className="rounded-lg border border-purple-500 bg-purple-600/20 px-3 py-1.5 text-xs font-medium text-purple-200
+                         hover:bg-purple-600/30 hover:border-purple-400 
+                         hover:shadow-lg hover:shadow-purple-500/50
+                         hover:-translate-y-1 hover:scale-101
+                         transition-all duration-400 disabled:opacity-50 cursor-pointer"
             >
               {savingAttendance ? "Saving..." : "Finalize today's attendance"}
             </button>
@@ -587,8 +593,11 @@ export default function ProfessorDashboard({ courseDocId, courseMeta, onLogout, 
               type="button"
               onClick={clearLiveStateForAllStudents}
               disabled={clearingStates}
-              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-200
-                        hover:border-emerald-400 hover:bg-slate-900/80 transition-colors cursor-pointer"
+              className="rounded-lg border border-red-500 bg-red-600/20 px-3 py-1.5 text-xs font-medium text-red-200
+                         hover:bg-red-600/30 hover:border-red-400 
+                         hover:shadow-lg hover:shadow-red-500/50
+                         hover:-translate-y-1 hover:scale-101
+                         transition-all duration-400 disabled:opacity-50 cursor-pointer"
             >
               {clearingStates ? "Clearing today's students' live info..." : "Clear today's students' live info"}
             </button>

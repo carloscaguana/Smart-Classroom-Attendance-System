@@ -23,7 +23,7 @@ export default function CourseConfigPanel({
             type="text"
             value={courseName}
             onChange={(e) => onCourseNameChange(e.target.value)}
-            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 hover:border-emerald-400 hover:bg-slate-900/80 transition-colors ease-in-out"
             placeholder="e.g. CS101 - Intro to CS"
           />
         </div>
@@ -37,7 +37,7 @@ export default function CourseConfigPanel({
               type="time"
               value={startTime}
               onChange={(e) => onStartTimeChange(e.target.value)}
-              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 hover:border-emerald-400 hover:bg-slate-900/80 transition-colors ease-in-out cursor-pointer"
             />
           </div>
 
@@ -49,7 +49,7 @@ export default function CourseConfigPanel({
               type="time"
               value={endTime}
               onChange={(e) => onEndTimeChange(e.target.value)}
-              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 hover:border-emerald-400 hover:bg-slate-900/80 transition-colors ease-in-out cursor-pointer"
             />
           </div>
 
@@ -61,7 +61,7 @@ export default function CourseConfigPanel({
               type="number"
               value={graceMinutes}
               onChange={(e) => onGraceMinutesChange(Number(e.target.value))}
-              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 hover:border-emerald-400 hover:bg-slate-900/80 transition-colors ease-in-out"
             />
           </div>
         </div>
@@ -74,7 +74,7 @@ export default function CourseConfigPanel({
             type="number"
             value={minMinutesPresent}
             onChange={(e) => onMinMinutesPresentChange(Number(e.target.value))}
-            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 hover:border-emerald-400 hover:bg-slate-900/80 transition-colors ease-in-out"
           />
         </div>
 

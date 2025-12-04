@@ -10,6 +10,32 @@ import { formatTotalDuration } from "../utils/time";
 
 import { getTodayKeyLocal } from "../utils/date";
 
+import sTierGif from "../assets/attendance/s_tier.gif";
+import decentGif from "../assets/attendance/decent.gif";
+import badGif from "../assets/attendance/bad.gif";
+import awfulGif from "../assets/attendance/awful.gif";
+
+function getAttendanceImage(percent) {
+  if (percent >= 90) return sTierGif;
+  if (percent >= 70) return decentGif;
+  if (percent >= 40) return badGif;
+  return awfulGif;
+}
+
+function getAttendanceCaption(percent) {
+  if (percent >= 90) return "NERD";
+  if (percent >= 70) return "Decent attendance...or is it?";
+  if (percent >= 40) return "POV: You're failing the course";
+  return "Your professor about to Hollow Purple your butt";
+}
+
+function getAttendanceShadow(percent) {
+  if (percent >= 90) return "shadow-emerald-500";
+  if (percent >= 70) return "shadow-gold-500";
+  if (percent >= 40) return "shadow-orange-500";
+  return "shadow-red-500";
+}
+
 export default function StudentDetailsPanel({
   selectedStudent,
   computeStatus,
@@ -76,6 +102,9 @@ export default function StudentDetailsPanel({
   );
   const color = getAttendanceColorClass(percent);
   const emoji = getAttendanceEmoji(percent);
+  const imageSrc = total > 0 ? getAttendanceImage(percent) : null;
+  const caption = total > 0 ? getAttendanceCaption(percent) : null;
+  const imageShadow = total > 0 ? getAttendanceShadow(percent) : null;
 
   const records = Array.isArray(viewStudent.attendanceRecords)
     ? [...viewStudent.attendanceRecords]
@@ -134,7 +163,7 @@ export default function StudentDetailsPanel({
             <span className="text-slate-400 text-xs">Override Status</span>
             <select
               className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500
-                         hover:border-emerald-500 hover:bg-slate-900 transition-colors cursor-pointer"
+                         hover:border-emerald-500 hover:bg-slate-900 transition-colors ease-in-out cursor-pointer"
               value={viewStudent.overrideStatus || ""}
               onChange={(e) =>
                 onOverrideStatusChange(viewStudent.id, e.target.value)
@@ -171,8 +200,24 @@ export default function StudentDetailsPanel({
                 </div>
               )}
             </div>
-            <div className="text-2xl ml-3">{emoji}</div>
+            <div className="text-2xl">{emoji}</div>
           </div>
+
+          {imageSrc && (
+            <div className="mt-3 flex flex-col items-center gap-2">
+              {caption && (
+                <div className="text-[19px] text-slate-400 text-center max-w-s">
+                  {caption}
+                </div>
+              )}
+              <img
+                src={imageSrc}
+                alt="Attendance mood gif"
+                className={`h-60 w-60 rounded-xl object-cover border border-slate-700 
+                           shadow-xl ${imageShadow}`}
+              />
+            </div>
+          )}
         </div>
 
         {/* Delete button (professor only) */}

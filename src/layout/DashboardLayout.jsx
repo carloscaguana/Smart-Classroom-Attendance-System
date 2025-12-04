@@ -13,7 +13,7 @@ export default function DashboardLayout({ title, onLogout, onBack, children }) {
               onClick={onBack}
               className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-200
                          hover:border-emerald-400 hover:text-emerald-300 hover:bg-slate-900/80
-                         transition-colors cursor-pointer"
+                         transition-colors ease-in-out cursor-pointer"
             >
               Back To Courses
             </button>
@@ -25,7 +25,7 @@ export default function DashboardLayout({ title, onLogout, onBack, children }) {
               onClick={onLogout}
               className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-200
                          hover:border-red-400 hover:text-red-300 hover:bg-slate-900/80
-                         transition-colors cursor-pointer"
+                         transition-colors ease-in-out cursor-pointer"
             >
               Logout
             </button>

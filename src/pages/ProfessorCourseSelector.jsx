@@ -178,7 +178,7 @@ export default function ProfessorCourseSelector({ profId, onSelectCourse, onLogo
               type="button"
               onClick={() => setShowAddForm(true)}
               className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-700
-                         bg-slate-900/40 p-4 hover:border-emerald-400 hover:bg-slate-900/80 transition-colors
+                         bg-slate-900/40 p-4 hover:border-emerald-400 hover:bg-slate-900/80 transition-all duration-400
                          cursor-pointer"
             >
               <div className="text-3xl mb-1">+</div>

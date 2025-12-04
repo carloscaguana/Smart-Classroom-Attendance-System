@@ -159,3 +159,14 @@ export const MOCK_STUDENTS = [
     ],
   },
 ];
+
+// GETO
+// lastArrival: 2025-12-04 10:30:00
+// Arrives after class = absence
+
+
+
+// Saturo Gojo -> s_tier gif
+// Ryomen Sukuna -> decent gif
+// Denji -> bad gif
+// Power -> awful gif

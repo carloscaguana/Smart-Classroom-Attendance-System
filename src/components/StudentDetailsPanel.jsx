@@ -31,7 +31,7 @@ function getAttendanceCaption(percent) {
 
 function getAttendanceShadow(percent) {
   if (percent >= 90) return "shadow-emerald-500";
-  if (percent >= 70) return "shadow-gold-500";
+  if (percent >= 70) return "shadow-yellow-500";
   if (percent >= 40) return "shadow-orange-500";
   return "shadow-red-500";
 }
